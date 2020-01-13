@@ -1,6 +1,6 @@
 package cn.cenxt.task.jobs;
 
-import cn.cenxt.task.Task;
+import cn.cenxt.task.model.Task;
 
 /**
  * 任务接口

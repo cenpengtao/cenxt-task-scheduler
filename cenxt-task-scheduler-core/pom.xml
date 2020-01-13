@@ -32,6 +32,11 @@
 			<scope>provided</scope>
 			<version>2.2.2.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>1.2.62</version>
+		</dependency>
 	</dependencies>
 
 	<build>

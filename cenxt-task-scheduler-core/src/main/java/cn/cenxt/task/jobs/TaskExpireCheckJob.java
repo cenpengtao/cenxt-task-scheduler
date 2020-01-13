@@ -1,7 +1,7 @@
 package cn.cenxt.task.jobs;
 
-import cn.cenxt.task.Task;
 import cn.cenxt.task.annotations.TaskInfo;
+import cn.cenxt.task.model.Task;
 
 /**
  * 超时任务检验

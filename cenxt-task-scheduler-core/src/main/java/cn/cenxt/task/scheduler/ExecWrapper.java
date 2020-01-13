@@ -1,8 +1,9 @@
 package cn.cenxt.task.scheduler;
 
-import cn.cenxt.task.Task;
 import cn.cenxt.task.jobs.CenxtJob;
 import cn.cenxt.task.listeners.CenxtTaskListener;
+import cn.cenxt.task.model.Task;
+import cn.cenxt.task.service.CenxtTaskService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +27,16 @@ public class ExecWrapper implements Runnable {
      */
     private CenxtTaskListener listener;
 
-    public ExecWrapper(Task task, CenxtJob job, CenxtTaskListener listener) {
+    /**
+     * 任务服务
+     */
+    private CenxtTaskService cenxtTaskService;
+
+    public ExecWrapper(Task task, CenxtJob job, CenxtTaskListener listener, CenxtTaskService cenxtTaskService) {
         this.task = task;
         this.job = job;
         this.listener = listener;
+        this.cenxtTaskService = cenxtTaskService;
     }
 
     @Override
@@ -50,6 +57,7 @@ public class ExecWrapper implements Runnable {
 
                 int retryTimes = Math.max(task.getRetryTimes(), 0);
                 boolean result = false;
+                StringBuilder erroMsg = new StringBuilder();
                 int i = 0;
                 for (; i <= retryTimes; i++) {
                     long step = System.currentTimeMillis();
@@ -75,6 +83,7 @@ public class ExecWrapper implements Runnable {
                         }
                         return;
                     } catch (Exception ex) {
+                        erroMsg.append(ex.getMessage()).append("\n");
                         //异常执行重试
                         try {
                             listener.fail(task, System.currentTimeMillis() - step, i + 1, ex);
@@ -95,6 +104,26 @@ public class ExecWrapper implements Runnable {
                             logger.warn("listener fail error", e);
                         }
                     }
+                }
+                //执行结果：0成功 1重试后成功 2失败
+                int execResult = 0;
+                if (!result) {
+                    execResult = 2;
+                } else if (i > 0) {
+                    execResult = 1;
+                }
+                try {
+                    //添加执行记录
+                    cenxtTaskService.insertExecHistory(task.getId(), task.getExecId(), task.getExecTime(),
+                            cenxtTaskService.getNowTime(), execResult, erroMsg.toString());
+                } catch (Exception e) {
+                    logger.error("insertExecHistory error", e);
+                }
+                try {
+                    //释放任务
+                    cenxtTaskService.releaseTask(task, execResult);
+                } catch (Exception e) {
+                    logger.error("releaseTask error", e);
                 }
 
                 long cost = System.currentTimeMillis() - start;

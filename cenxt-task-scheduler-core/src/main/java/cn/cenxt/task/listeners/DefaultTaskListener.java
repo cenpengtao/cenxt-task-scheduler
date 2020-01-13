@@ -1,6 +1,6 @@
 package cn.cenxt.task.listeners;
 
-import cn.cenxt.task.Task;
+import cn.cenxt.task.model.Task;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

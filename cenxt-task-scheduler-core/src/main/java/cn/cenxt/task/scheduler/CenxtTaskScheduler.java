@@ -1,9 +1,9 @@
 package cn.cenxt.task.scheduler;
 
-import cn.cenxt.task.Task;
 import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.jobs.CenxtJob;
 import cn.cenxt.task.listeners.CenxtTaskListener;
+import cn.cenxt.task.model.Task;
 import cn.cenxt.task.properties.CenxtTaskProperties;
 import cn.cenxt.task.service.CenxtTaskService;
 import org.slf4j.Logger;
@@ -78,7 +78,7 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                         logger.debug("get tasks size:{}", waitExecTask.size());
                         for (Task task : waitExecTask) {
                             logger.debug("try to lock task:{},id:{}", task.getName(), task.getId());
-                            if (!cenxtTaskService.lockTask(task.getId())) {
+                            if (!cenxtTaskService.lockTask(task)) {
                                 logger.debug("fail to lock task:{},id:{}", task.getName(), task.getId());
                                 continue;
                             }
@@ -86,16 +86,30 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                             try {
                                 //设置执行编号
                                 task.setExecId(UUID.randomUUID().toString());
+                                task.setExecTime(cenxtTaskService.getNowTime());
                                 //获取执行任务
                                 CenxtJob job = applicationContext.getBean(task.getName(), CenxtJob.class);
                                 //包装执行器
-                                ExecWrapper execWrapper = new ExecWrapper(task, job, cenxtTaskListener);
+                                ExecWrapper execWrapper = new ExecWrapper(task, job, cenxtTaskListener, cenxtTaskService);
                                 //执行任务
                                 executor.execute(execWrapper);
                             } catch (BeansException e) {
                                 logger.error("not found task. task:{}", task.getName());
                             } catch (Exception e) {
                                 logger.error("CenxtTaskScheduler exec error,task:{},execId:{}", task.getName(), task.getExecId(), e);
+                                try {
+                                    //添加执行记录
+                                    cenxtTaskService.insertExecHistory(task.getId(), task.getExecId(), task.getExecTime(),
+                                            cenxtTaskService.getNowTime(), 2, e.getMessage());
+                                } catch (Exception ex) {
+                                    logger.error("insertExecHistory error", ex);
+                                }
+                                try {
+                                    //释放任务
+                                    cenxtTaskService.releaseTask(task, 2);
+                                } catch (Exception ex) {
+                                    logger.error("releaseTask error", ex);
+                                }
                             }
                         }
                     } catch (Exception e) {
