@@ -145,7 +145,7 @@ public class ExecWrapper implements Runnable {
                     if (result) {
                         listener.finish(task, cost, i);
                     } else {
-                        listener.exceptionFinish(task, cost, i);
+                        listener.exceptionFinish(task, cost, i-1);
                     }
                 } catch (Exception e) {
                     logger.warn("listener finish error", e);

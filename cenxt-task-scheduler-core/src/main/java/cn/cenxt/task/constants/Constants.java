@@ -93,7 +93,7 @@ public class Constants {
             "\t\tflag=2 \n" +
             "\t\tAND (\n" +
             "\t\t\t##如果上次执行机器为当前机器，执行时间延后1分钟\n" +
-            "\t\t\t(exec_ip=? AND next_time<DATE_ADD(NOW(),interval 1 MINUTE))\n" +
+            "\t\t\t(exec_ip=? AND next_time<DATE_SUB(NOW(),interval 1 MINUTE))\n" +
             "\t\t\t##如果上次执行机器不是当前，到时间自动执行\n" +
             "\t\t\tOR (exec_ip<>? AND next_time<NOW())\n" +
             "\t\t)\n" +
