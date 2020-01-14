@@ -90,7 +90,7 @@ public class Constants {
             "\tOR (flag=1 AND exec_time<DATE_SUB(NOW(),interval `expire` MINUTE))\n" +
             "\tOR (\n" +
             "\t\t##执行失败\n" +
-            "\t\tflag=3 \n" +
+            "\t\tflag=2 \n" +
             "\t\tAND (\n" +
             "\t\t\t##如果上次执行机器为当前机器，执行时间延后1分钟\n" +
             "\t\t\t(exec_ip=? AND next_time<DATE_ADD(NOW(),interval 1 MINUTE))\n" +
@@ -103,14 +103,18 @@ public class Constants {
     /**
      * 锁定任务
      */
-    public static final String SQL_QUERY_LOCK_TASK = "UPDATE cenxt_task SET flag=1,exec_time=NOW(),exec_ip=? WHERE id=? AND enabled=1 AND exec_time=? AND next_time<NOW()";
+    public static final String SQL_QUERY_LOCK_TASK = "UPDATE cenxt_task SET flag=1,exec_time=NOW(),exec_ip=? WHERE id=? AND enabled=1 AND exec_time=?";
     /**
      * 释放任务
      */
-    public static final String SQL_QUERY_RELEASE_TASK = "UPDATE cenxt_task SET flag=?,next_time=? WHERE id=? AND flag=1 ";
+    public static final String SQL_RELEASE_TASK = "UPDATE cenxt_task SET flag=?,next_time=? WHERE id=? AND flag=1 ";
+    /**
+     * 失败并禁用任务
+     */
+    public static final String SQL_QUERY_RELEASE_TASK = "UPDATE cenxt_task SET enabled=0,flag=2,update_time=now(),updator='system' WHERE id=? AND enabled=1 ";
 
     /**
      * 新增执行记录
      */
-    public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO `task`.`cenxt_exec_history` (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `error_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO cenxt_exec_history (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `error_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 }

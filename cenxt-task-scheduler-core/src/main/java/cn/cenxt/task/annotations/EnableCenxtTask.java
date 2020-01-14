@@ -3,8 +3,12 @@ package cn.cenxt.task.annotations;
 import cn.cenxt.task.configuration.CenxtTaskConfiguration;
 import cn.cenxt.task.configuration.CenxtTaskViewConfiguration;
 import cn.cenxt.task.properties.CenxtTaskProperties;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;

@@ -1,11 +1,10 @@
 package cn.cenxt.task.model;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 任务
@@ -159,5 +158,10 @@ public class Task implements Serializable {
 
     public void setMobiles(List<String> mobiles) {
         this.mobiles = mobiles;
+    }
+
+    @Override
+    public String toString() {
+        return JSON.toJSONString(this);
     }
 }

@@ -3,8 +3,11 @@ package cn.cenxt.task.service;
 import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.mapper.TaskRowMapper;
 import cn.cenxt.task.model.Task;
+import cn.cenxt.task.scheduler.CenxtTaskScheduler;
 import cn.cenxt.task.utils.CronAnalysisUtil;
 import cn.cenxt.task.utils.IpUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -17,6 +20,8 @@ import java.util.List;
  * 任务服务
  */
 public class CenxtTaskService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CenxtTaskService.class);
 
     private JdbcTemplate jdbcTemplate;
 
@@ -32,10 +37,12 @@ public class CenxtTaskService {
      * 初始化数据表
      */
     public void initTable() {
+        logger.info("begin init table");
         //创建任务表
         jdbcTemplate.update(Constants.SQL_CREATE_TASK_TABLE);
         //创建执行记录表
         jdbcTemplate.update(Constants.SQL_CREATE_EXEC_HISTORY_TABLE);
+        logger.info("success init table");
     }
 
     /**
@@ -72,8 +79,18 @@ public class CenxtTaskService {
         if (execResult == 2) {
             flag = 2;
         }
-        jdbcTemplate.update(Constants.SQL_QUERY_RELEASE_TASK, flag, CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
+        jdbcTemplate.update(Constants.SQL_RELEASE_TASK, flag, CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
     }
+
+
+    /**
+     * 失败并禁用
+     * @param id 任务编号
+     */
+    public void failAndDisableTask(int id) {
+        jdbcTemplate.update(Constants.SQL_QUERY_RELEASE_TASK,id);
+    }
+
 
     /**
      * 新增执行记录
@@ -99,7 +116,7 @@ public class CenxtTaskService {
         return jdbcTemplate.queryForObject("SELECT NOW()", new RowMapper<Date>() {
             @Override
             public Date mapRow(ResultSet resultSet, int i) throws SQLException {
-                return resultSet.getDate(0);
+                return resultSet.getTimestamp(1);
             }
         });
     }

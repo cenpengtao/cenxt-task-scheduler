@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: cenxt-task-scheduler-demo
+  #DATABASE CONFIG
+  datasource:
+    name: main-datasources
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: cen
+    password: Hcxin@2018
+    url: jdbc:mysql://119.29.120.234/task?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    type: com.alibaba.druid.pool.DruidDataSource   #这里是配置druid连接池，以下都是druid的配置信息
+    druid:
+      filters: stat,wall,slf4j
+      maxActive: 10
+      initialSize: 2
+      maxWait: 60000
+      minIdle: 2
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxOpenPreparedStatements: 20
+      connection-properties: druid.stat.merggSql=ture;druid.stat.slowSqlMillis=5000
+      #访问地址：http://localhost:8888/config-center-service/druid/index.html
+      stat-view-servlet:
+        enabled: true
+        allow: 116.76.16.0/21,127.0.0.1,192.168.0.0/24,172.17.0.1/16
+        login-username: admin
+        login-password: Hcxin@2018
+
+logging:
+  level:
+    cn:
+      cenxt: DEBUG

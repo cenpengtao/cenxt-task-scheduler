@@ -22,7 +22,7 @@ public class TaskRowMapper implements RowMapper<Task> {
         task.setName(resultSet.getString("name"));
         task.setDescription(resultSet.getString("description"));
         task.setExpire(resultSet.getInt("expire"));
-        task.setExecTime(resultSet.getDate("exec_time"));
+        task.setExecTime(resultSet.getTimestamp("exec_time"));
         task.setRetryTimes(resultSet.getInt("retry_times"));
         task.setCronStr(resultSet.getString("cron_str"));
 

@@ -1,12 +1,15 @@
 package cn.cenxt.task.configuration;
 
 import cn.cenxt.task.jobs.CenxtJob;
+import cn.cenxt.task.jobs.TaskExpireCheckJob;
 import cn.cenxt.task.listeners.CenxtTaskListener;
 import cn.cenxt.task.listeners.DefaultTaskListener;
 import cn.cenxt.task.scheduler.CenxtTaskScheduler;
 import cn.cenxt.task.service.CenxtTaskService;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
@@ -23,7 +26,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
         havingValue = "true",
         matchIfMissing = true
 )
-@ComponentScan(basePackageClasses = {CenxtJob.class})
+@ComponentScan(basePackages = "cn.cenxt.task.jobs")
+@AutoConfigureAfter(JdbcTemplateAutoConfiguration.class)
 public class CenxtTaskConfiguration {
 
     /**
@@ -43,4 +47,5 @@ public class CenxtTaskConfiguration {
     public CenxtTaskService cenxtTaskService(JdbcTemplate jdbcTemplate) {
         return new CenxtTaskService(jdbcTemplate);
     }
+
 }
