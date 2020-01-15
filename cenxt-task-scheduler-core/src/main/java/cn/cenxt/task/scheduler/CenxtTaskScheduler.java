@@ -7,7 +7,6 @@ import cn.cenxt.task.model.Task;
 import cn.cenxt.task.properties.CenxtTaskProperties;
 import cn.cenxt.task.service.CenxtTaskService;
 import cn.cenxt.task.utils.CronAnalysisUtil;
-import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -15,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
-import org.springframework.scheduling.support.CronSequenceGenerator;
 
 import java.util.Date;
 import java.util.List;
@@ -60,7 +58,7 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
         final int[] fetchSize = {Math.max(taskProperties.getFetchSize(), Constants.DEFAULT_FETCH_SIZE)};
         int poolSize = Math.max(taskProperties.getThread(), Constants.DEFAULT_THREAD_SIZE);
         executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(poolSize);
-        logger.info("success create executor with size {}",poolSize);
+        logger.info("success create executor with size {}", poolSize);
         new Thread(CenxtTaskScheduler.class.getSimpleName()) {
             @Override
             public void run() {
@@ -98,7 +96,7 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                                 task.setExecTime(cenxtTaskService.getNowTime());
 
                                 //判断任务表达式
-                                if(CronAnalysisUtil.getNextTime(task.getCronStr(),new Date())==null) {
+                                if (CronAnalysisUtil.getNextTime(task.getCronStr(), new Date()) == null) {
 
                                     continue;
                                 }
@@ -109,7 +107,7 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                                 ExecWrapper execWrapper = new ExecWrapper(task, job, cenxtTaskListener, cenxtTaskService);
                                 //执行任务
                                 executor.execute(execWrapper);
-                                logger.info("task submit ,execId:{}",task.getExecId());
+                                logger.info("task submit ,execId:{}", task.getExecId());
                             } catch (BeansException e) {
                                 logger.error("not found task. task:{}", task.getName());
                                 //添加执行记录

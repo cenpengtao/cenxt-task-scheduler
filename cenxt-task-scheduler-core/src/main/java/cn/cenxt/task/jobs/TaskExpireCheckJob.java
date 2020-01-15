@@ -13,7 +13,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskExpireCheckJob implements CenxtJob {
 
-    private static Logger logger= LoggerFactory.getLogger(TaskExpireCheckJob.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskExpireCheckJob.class);
+
     /**
      * 开始执行任务
      *

@@ -3,7 +3,6 @@ package cn.cenxt.task.service;
 import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.mapper.TaskRowMapper;
 import cn.cenxt.task.model.Task;
-import cn.cenxt.task.scheduler.CenxtTaskScheduler;
 import cn.cenxt.task.utils.CronAnalysisUtil;
 import cn.cenxt.task.utils.IpUtil;
 import org.slf4j.Logger;
@@ -85,10 +84,11 @@ public class CenxtTaskService {
 
     /**
      * 失败并禁用
+     *
      * @param id 任务编号
      */
     public void failAndDisableTask(int id) {
-        jdbcTemplate.update(Constants.SQL_QUERY_RELEASE_TASK,id);
+        jdbcTemplate.update(Constants.SQL_QUERY_RELEASE_TASK, id);
     }
 
 

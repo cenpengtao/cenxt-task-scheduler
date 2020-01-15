@@ -8,7 +8,7 @@
 		<version>2.2.2.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>cn.cenxt.task.demo</groupId>
+	<groupId>cn.cenxt</groupId>
 	<artifactId>cenxt-task-scheduler-demo</artifactId>
 	<name>cenxt-task-scheduler-demo</name>
 	<version>0.0.1-SNAPSHOT</version>
@@ -20,7 +20,7 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>cn.cenxt.task</groupId>
+			<groupId>cn.cenxt</groupId>
 			<artifactId>cenxt-task-scheduler-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>

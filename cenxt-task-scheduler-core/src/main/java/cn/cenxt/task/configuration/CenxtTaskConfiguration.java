@@ -1,7 +1,5 @@
 package cn.cenxt.task.configuration;
 
-import cn.cenxt.task.jobs.CenxtJob;
-import cn.cenxt.task.jobs.TaskExpireCheckJob;
 import cn.cenxt.task.listeners.CenxtTaskListener;
 import cn.cenxt.task.listeners.DefaultTaskListener;
 import cn.cenxt.task.scheduler.CenxtTaskScheduler;
