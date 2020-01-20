@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
- * 超时任务检验
+ * 任务执行历史清理
  */
-@CenxtTask("超时任务检验任务：扫描处于执行中的任务，判断是否超时，如果超时重置任务状态")
+@CenxtTask("任务执行历史清理")
 @Component
-public class TaskExpireCheckJob implements CenxtJob {
+class TaskExecHistoryClearJob implements CenxtJob {
 
-    private static Logger logger = LoggerFactory.getLogger(TaskExpireCheckJob.class);
+    private static Logger logger = LoggerFactory.getLogger(TaskExecHistoryClearJob.class);
 
     /**
      * 开始执行任务

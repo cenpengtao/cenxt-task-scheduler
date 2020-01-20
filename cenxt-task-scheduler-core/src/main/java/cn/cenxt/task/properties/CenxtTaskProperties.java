@@ -12,7 +12,7 @@ public class CenxtTaskProperties {
     /**
      * 是否启用配置
      */
-    private boolean enabled = true;
+    private boolean enabled;
 
     /**
      * 任务扫描间隔单位ms
@@ -33,6 +33,11 @@ public class CenxtTaskProperties {
      * 初始化任务表，如果启用，不存在任务表将自动创建
      */
     private boolean initTable = true;
+
+    /**
+     * 页面配置
+     */
+    private CenxtTaskProperties.View view = new CenxtTaskProperties.View();
 
     public boolean isEnabled() {
         return enabled;
@@ -74,6 +79,14 @@ public class CenxtTaskProperties {
         this.initTable = initTable;
     }
 
+    public CenxtTaskProperties.View getView() {
+        return view;
+    }
+
+    public void setView(CenxtTaskProperties.View view) {
+        this.view = view;
+    }
+
     /**
      * 控制界面配置
      */
@@ -82,22 +95,35 @@ public class CenxtTaskProperties {
          * 是否启用控制界面
          */
         private boolean enabled;
+
         /**
-         * 用户名
+         * 是否需要登录
          */
-        private String username;
+        private boolean needLogin;
+
         /**
-         * 密码
+         * 管理员用户名
          */
-        private String password;
+        private String adminUsername = "admin";
         /**
-         * 允许IP配置
+         * 管理员密码
          */
-        private String allow;
+        private String adminPassword = "admin";
+        /**
+         * 游客用户名
+         */
+        private String guestUsername = "guest";
+        /**
+         * 游客密码
+         */
+        private String guestPassword = "guest";
+
         /**
          * 单个IP最大登录尝试次数
          */
-        private int MaxTryCount;
+        private int maxTryCount = 5;
+
+        private String contentPath = "/cenxt-task-view";
 
         public boolean isEnabled() {
             return enabled;
@@ -107,36 +133,60 @@ public class CenxtTaskProperties {
             this.enabled = enabled;
         }
 
-        public String getUsername() {
-            return username;
+        public boolean isNeedLogin() {
+            return needLogin;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public void setNeedLogin(boolean needLogin) {
+            this.needLogin = needLogin;
         }
 
-        public String getPassword() {
-            return password;
+        public String getAdminUsername() {
+            return adminUsername;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setAdminUsername(String adminUsername) {
+            this.adminUsername = adminUsername;
         }
 
-        public String getAllow() {
-            return allow;
+        public String getAdminPassword() {
+            return adminPassword;
         }
 
-        public void setAllow(String allow) {
-            this.allow = allow;
+        public void setAdminPassword(String adminPassword) {
+            this.adminPassword = adminPassword;
+        }
+
+        public String getGuestUsername() {
+            return guestUsername;
+        }
+
+        public void setGuestUsername(String guestUsername) {
+            this.guestUsername = guestUsername;
+        }
+
+        public String getGuestPassword() {
+            return guestPassword;
+        }
+
+        public void setGuestPassword(String guestPassword) {
+            this.guestPassword = guestPassword;
         }
 
         public int getMaxTryCount() {
-            return MaxTryCount;
+            return maxTryCount;
         }
 
         public void setMaxTryCount(int maxTryCount) {
-            MaxTryCount = maxTryCount;
+            this.maxTryCount = maxTryCount;
+        }
+
+        public String getContentPath() {
+            return contentPath;
+        }
+
+        public void setContentPath(String contentPath) {
+            this.contentPath = contentPath;
         }
     }
 }

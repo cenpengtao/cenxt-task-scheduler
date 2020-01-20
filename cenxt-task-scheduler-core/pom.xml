@@ -5,24 +5,62 @@
 	<groupId>cn.cenxt</groupId>
 	<artifactId>cenxt-task-scheduler-core</artifactId>
 	<name>cenxt-task-scheduler-core</name>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>jar</packaging>
 	<description>Java分布式任务调度核心服务</description>
+	<url>https://github.com/cenpengtao/cenxt-task-scheduler</url>
+
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+    <scm>
+        <connection>scm:git:git@github.com:cenpengtao/cenxt-task-scheduler.git</connection>
+        <developerConnection>scm:git:git@github.com:cenpengtao/cenxt-task-scheduler.git</developerConnection>
+        <url>https://github.com/cenpengtao/cenxt-task-scheduler/tree/master</url>
+    </scm>
+
+	<!-- 开发人员信息 -->
+	<developers>
+		<developer>
+			<name>cenpengtao</name>
+			<email>cpt725@qq.com</email>
+			<organization>https://github.com/cenpengtao</organization>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
+
+	<!-- 发布管理信息 -->
+	<distributionManagement>
+		<repository>
+			<!-- 这里的id必须要和全局配置中的release id 一致 -->
+			<id>sonatype_releases</id>
+			<name>Nexus Release Repository</name>
+			<!-- 这里就是在创建issue成功后，对方回复的release发布地址-->
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+		</repository>
+		<snapshotRepository>
+			<!-- 这里的id必须要和全局配置中的snapshot id 一致 -->
+			<id>sonatype_snapshots</id>
+			<name>Nexus Snapshot Repository</name>
+			<!-- 这里就是在创建issue成功后，对方回复的snapshot发布地址-->
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<properties>
 		<java.version>1.8</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
-			<scope>provided</scope>
-			<version>2.2.2.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 			<scope>provided</scope>
 			<version>2.2.2.RELEASE</version>
 		</dependency>
@@ -41,11 +79,65 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
+				<plugin>
+					<groupId>org.sonatype.plugins</groupId>
+					<artifactId>nexus-staging-maven-plugin</artifactId>
+					<version>1.6.7</version>
+					<extensions>true</extensions>
+					<configuration>
+						<!-- 这里的id必须要和全局配置中的release id 一致 -->
+						<serverId>sonatype_releases</serverId>
+						<nexusUrl>https://oss.sonatype.org/</nexusUrl>
+						<!-- 如果希望发布后自动执行close和release操作，此处可以调整为true -->
+						<autoReleaseAfterClose>false</autoReleaseAfterClose>
+					</configuration>
+				</plugin>
+				<!--javadoc-->
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.10.4</version>
+					<configuration>
+						<charset>UTF-8</charset>
+					</configuration>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.2.1</version>
+					<executions>
+						<execution>
+							<phase>package</phase>
+							<goals>
+								<goal>jar-no-fork</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- 生成asc 校验文件 -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-gpg-plugin</artifactId>
+					<version>1.5</version>
+					<executions>
+						<execution>
+							<!-- 必须和配置中的gpg校验id一致 -->
+							<id>gpg</id>
+							<phase>verify</phase>
+							<goals>
+								<goal>sign</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+			</plugins>
 	</build>
 
 </project>

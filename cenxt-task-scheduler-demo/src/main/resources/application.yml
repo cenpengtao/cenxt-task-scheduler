@@ -6,9 +6,9 @@ spring:
     name: main-datasources
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: cen
-    password: Hcxin@2018
+    password: xxxxxx
     url: jdbc:mysql://119.29.120.234/task?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    type: com.alibaba.druid.pool.DruidDataSource   #ÕâÀïÊÇÅäÖÃdruidÁ¬½Ó³Ø£¬ÒÔÏÂ¶¼ÊÇdruidµÄÅäÖÃĞÅÏ¢
+    type: com.alibaba.druid.pool.DruidDataSource   #è¿™é‡Œæ˜¯é…ç½®druidè¿æ¥æ± ï¼Œä»¥ä¸‹éƒ½æ˜¯druidçš„é…ç½®ä¿¡æ¯
     druid:
       filters: stat,wall,slf4j
       maxActive: 10
@@ -24,7 +24,7 @@ spring:
       poolPreparedStatements: true
       maxOpenPreparedStatements: 20
       connection-properties: druid.stat.merggSql=ture;druid.stat.slowSqlMillis=5000
-      #·ÃÎÊµØÖ·£ºhttp://localhost:8888/config-center-service/druid/index.html
+      #è®¿é—®åœ°å€ï¼šhttp://localhost:8888/config-center-service/druid/index.html
       stat-view-servlet:
         enabled: true
         allow: 116.76.16.0/21,127.0.0.1,192.168.0.0/24,172.17.0.1/16
@@ -35,3 +35,9 @@ logging:
   level:
     cn:
       cenxt: DEBUG
+
+cenxt:
+  task:
+    view:
+      enabled: true
+      content-path: /a
