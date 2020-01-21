@@ -26,6 +26,15 @@ public class Task implements Serializable {
      */
     private String description;
     /**
+     * 启用状态
+     */
+    private boolean enabled;
+    /**
+     * 执行状态：0待执行 1执行中 2执行失败
+     */
+    private int flag;
+
+    /**
      * 执行编号
      */
     private String execId;
@@ -56,7 +65,30 @@ public class Task implements Serializable {
      * 执行时间
      */
     private Date execTime;
-
+    /**
+     * 执行ip
+     */
+    private String execIp;
+    /**
+     * 下次执行时间
+     */
+    private Date nextTime;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
+    /**
+     * 创建人
+     */
+    private String creator;
+    /**
+     * 更新人
+     */
+    private String updator;
     /**
      * 电子邮箱列表，用于发提醒邮件
      */
@@ -128,7 +160,7 @@ public class Task implements Serializable {
      */
     public <T> T getParam(String key, Class<T> clazz, T defaultValue) {
         if (params == null) {
-            return null;
+            return defaultValue;
         }
         T value = params.getObject(key, clazz);
         return value == null ? defaultValue : value;
@@ -160,6 +192,74 @@ public class Task implements Serializable {
 
     public void setMobiles(List<String> mobiles) {
         this.mobiles = mobiles;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public int getFlag() {
+        return flag;
+    }
+
+    public void setFlag(int flag) {
+        this.flag = flag;
+    }
+
+    public JSONObject getParams() {
+        return params;
+    }
+
+    public String getExecIp() {
+        return execIp;
+    }
+
+    public void setExecIp(String execIp) {
+        this.execIp = execIp;
+    }
+
+    public Date getNextTime() {
+        return nextTime;
+    }
+
+    public void setNextTime(Date nextTime) {
+        this.nextTime = nextTime;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public String getUpdator() {
+        return updator;
+    }
+
+    public void setUpdator(String updator) {
+        this.updator = updator;
     }
 
     @Override

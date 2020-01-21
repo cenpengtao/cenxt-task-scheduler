@@ -30,7 +30,7 @@ public class CronAnalysisUtil {
      */
     public static List<Date> getNextExecTimeList(String cron, Date now, int size) {
         List<Date> list = new ArrayList<>(size);
-        for (int i = 0; i <= size; i++) {
+        for (int i = 0; i < size; i++) {
             now = getNextTime(cron, now);
             list.add(now);
         }

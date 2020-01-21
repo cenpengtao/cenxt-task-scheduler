@@ -22,6 +22,14 @@ public class Constants {
      * 默认执行线程数
      */
     public static final int DEFAULT_THREAD_SIZE = 3;
+    /**
+     * 会话中用户名
+     */
+    public static final String SESSION_USERNAME = "CENXT_TASK_USERNAME";
+    /**
+     * 会话中角色
+     */
+    public static final String SESSION_ROLE = "CENXT_TASK_USER_ROLE";
 
     /**
      * 创建任务表Sql
@@ -117,4 +125,16 @@ public class Constants {
      * 新增执行记录
      */
     public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO cenxt_exec_history (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `error_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    /**
+     * 获取所有任务
+     */
+    public static final String SQL_QUERY_ALL_TASK_LIST = "SELECT * FROM cenxt_task order by update_time desc";
+    /**
+     * 获取最近n条执行记录
+     */
+    public static final String SQL_QUERY_EXEC_HISTORY_LIST = "SELECT * FROM cenxt_exec_history WHERE task_id=? order by exec_time DESC LIMIT ?";
+    /**
+     * 删除执行记录
+     */
+    public static final String SQL_DELETE_EXEC_HISTORY = "DELETE FROM cenxt_exec_history WHERE exec_time<?";
 }

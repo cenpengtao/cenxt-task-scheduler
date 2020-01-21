@@ -20,12 +20,20 @@ public class TaskRowMapper implements RowMapper<Task> {
         Task task = new Task();
         task.setId(resultSet.getInt("id"));
         task.setName(resultSet.getString("name"));
+        task.setEnabled(resultSet.getBoolean("enabled"));
+        task.setFlag(resultSet.getInt("flag"));
+        task.setName(resultSet.getString("name"));
         task.setDescription(resultSet.getString("description"));
         task.setExpire(resultSet.getInt("expire"));
         task.setExecTime(resultSet.getTimestamp("exec_time"));
+        task.setExecIp(resultSet.getString("exec_ip"));
         task.setRetryTimes(resultSet.getInt("retry_times"));
         task.setCronStr(resultSet.getString("cron_str"));
-
+        task.setNextTime(resultSet.getTimestamp("next_time"));
+        task.setCreateTime(resultSet.getTimestamp("create_time"));
+        task.setUpdateTime(resultSet.getTimestamp("update_time"));
+        task.setCreator(resultSet.getString("creator"));
+        task.setUpdator(resultSet.getString("updator"));
         String emailStr = resultSet.getString("emails");
         if (!StringUtils.isEmpty(emailStr)) {
             task.setEmails(Arrays.asList(emailStr.split(";")));

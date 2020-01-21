@@ -1,7 +1,9 @@
 package cn.cenxt.task.service;
 
 import cn.cenxt.task.constants.Constants;
+import cn.cenxt.task.mapper.ExecHistoryMapper;
 import cn.cenxt.task.mapper.TaskRowMapper;
+import cn.cenxt.task.model.ExecHistory;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.utils.CronAnalysisUtil;
 import cn.cenxt.task.utils.IpUtil;
@@ -119,5 +121,31 @@ public class CenxtTaskService {
                 return resultSet.getTimestamp(1);
             }
         });
+    }
+
+    public List<Task> getAllTasks() {
+        return jdbcTemplate.query(Constants.SQL_QUERY_ALL_TASK_LIST, new TaskRowMapper());
+    }
+
+    /**
+     * 获取执行记录
+     *
+     * @param taskId 任务编号
+     * @param size   条数
+     * @return
+     */
+    public List<ExecHistory> getExecHistory(int taskId, int size) {
+        Object[] params = {taskId, size};
+        return jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_LIST, params, new ExecHistoryMapper());
+    }
+
+    /**
+     * 删除执行记录
+     *
+     * @param date 什么时间之前
+     * @return 删除行数
+     */
+    public int deleteExecHistory(Date date) {
+        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date);
     }
 }

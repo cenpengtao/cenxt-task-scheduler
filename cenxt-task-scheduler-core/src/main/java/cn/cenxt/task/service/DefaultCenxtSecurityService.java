@@ -1,37 +1,41 @@
 package cn.cenxt.task.service;
 
+import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.enums.RoleEnum;
-import cn.cenxt.task.properties.CenxtTaskProperties;
-import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 默认安全服务
  */
-public class DefaultCenxtSecurityService {
+public class DefaultCenxtSecurityService implements CenxtSecurityService {
 
-    private CenxtTaskProperties properties;
-
-    public DefaultCenxtSecurityService(CenxtTaskProperties properties) {
-        this.properties = properties;
+    /**
+     * 获取用户名
+     *
+     * @param request 请求
+     * @return 角色 如果为null，表示未登录
+     */
+    @Override
+    public String getUserName(HttpServletRequest request) {
+        Object username = request.getSession().getAttribute(Constants.SESSION_USERNAME);
+        if (username == null) {
+            return null;
+        }
+        return (String) username;
     }
 
     /**
      * 获取角色
      *
-     * @param username 用户名
-     * @param password 密码
      * @return 角色 如果为null，表示未登录
      */
-    public RoleEnum getRole(String username, String password) {
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+    @Override
+    public RoleEnum getRole(HttpServletRequest request) {
+        Object role = request.getSession().getAttribute(Constants.SESSION_ROLE);
+        if (role == null) {
             return null;
         }
-        if (username.equals(properties.getView().getAdminUsername()) && password.equals(properties.getView().getAdminPassword())) {
-            return RoleEnum.ADMIN;
-        }
-        if (username.equals(properties.getView().getGuestUsername()) && password.equals(properties.getView().getGuestPassword())) {
-            return RoleEnum.GUEST;
-        }
-        return null;
+        return (RoleEnum) role;
     }
 }
