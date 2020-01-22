@@ -17,7 +17,7 @@ public class Task implements Serializable {
      */
     private int id;
     /**
-     * 任务名词
+     * 任务名称
      */
     private String name;
 

@@ -8,11 +8,9 @@
 }
 
 .login-container {
-    width: 300px;
-    height: 310px;
+    widows: 100%;
     background: #fff;
     padding: 20px 30px;
-    float: right
 }
 
 .login-title {
@@ -36,7 +34,6 @@
     margin-bottom: 15px;
     height: 20px;
 }
-
 </style>
 <template>
 <div id="app">
@@ -44,7 +41,7 @@
         <Col span="8" />
         <Col span="8">
         <div class="login-container">
-            <div class="login-title">账号登录</div>
+            <div class="login-title">登录</div>
             <Form class="login-form">
                 <FormItem>
                     <Input v-model="username" size="large" placeholder="用户名" />
@@ -65,6 +62,7 @@
 
 <script>
 import util from "./../util/index.js";
+import http from "./../api/http.js";
 var _this;
 export default {
     name: "app",
@@ -77,7 +75,16 @@ export default {
 
     methods: {
         login: function () {
-
+            http.post("/api/login", {
+                username: this.username,
+                password: this.password
+            }, role => {
+                this.$router.push({path:'/',params:{role:role}})
+            }, e => {
+                this.$Notice.error({
+                    title: '[' + e.code + '] ' + e.message
+                });
+            })
         }
     }
 };

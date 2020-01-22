@@ -37,7 +37,11 @@ public class CenxtTaskFilter implements Filter {
         //排除登录地址
         String[] urls = {
                 taskProperties.getView().getContentPath() + "/api/login",
-                taskProperties.getView().getContentPath() + "/#/login"};
+                taskProperties.getView().getContentPath() + "/#/login",
+                taskProperties.getView().getContentPath() + "/#/",
+                taskProperties.getView().getContentPath() + "/",
+                taskProperties.getView().getContentPath() + "/index.html",
+        };
         AntPathMatcher pathMatcher = new AntPathMatcher();
         for (String str : urls) {
             if (pathMatcher.match(str, url)) {

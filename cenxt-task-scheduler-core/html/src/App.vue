@@ -1,11 +1,12 @@
 <style scoped>
 .container {
-    top: 50px;
+    top: 0px;
     bottom: 0px;
     left: 0px;
-    right: 0px;
+    right: 0px; 
     position: absolute;
     background: #fff;
+    padding: 10px;
 }
 </style>
 <template>
@@ -15,8 +16,6 @@
 </template>
 
 <script>
-import WebHeader from "./components/WebHeader";
-import util from "./util/index.js";
 export default {
     name: "app",
     data() {

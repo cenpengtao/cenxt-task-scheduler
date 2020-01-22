@@ -115,6 +115,9 @@ public class ApiController {
     @GetMapping("/exec-history/{taskId}/{size}")
     public ResponseEntity<List<ExecHistory>> execHistory(@PathVariable("taskId") int taskId,
                                                          @PathVariable("size") int size) {
+        if(size<1||size>100){
+            size=10;
+        }
         return ResponseEntity.ok(cenxtTaskService.getExecHistory(taskId, size));
     }
 
