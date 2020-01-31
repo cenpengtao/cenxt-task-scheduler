@@ -32,6 +32,9 @@ public class CronAnalysisUtil {
         List<Date> list = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             now = getNextTime(cron, now);
+            if (now==null) {
+                return list;
+            }
             list.add(now);
         }
         return list;

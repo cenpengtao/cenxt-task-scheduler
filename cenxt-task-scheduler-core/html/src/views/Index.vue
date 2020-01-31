@@ -9,7 +9,7 @@
     </div>
     <Table :loading="loading" :columns="columns" :data="tasks" size="small" highlight-row border stripe></Table>
 
-    <Modal v-model="newTaskModel" fullscreen>
+    <Modal v-model="newTaskModel" :width="900">
         <p slot="header">
             <span>新建任务</span>
         </p>
