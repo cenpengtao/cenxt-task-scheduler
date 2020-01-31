@@ -44,10 +44,10 @@
             <div class="login-title">登录</div>
             <Form class="login-form">
                 <FormItem>
-                    <Input v-model="username" size="large" placeholder="用户名" />
+                    <Input v-model="username" size="large" placeholder="用户名"  @on-enter="login"/>
                 </FormItem>
                 <FormItem>
-                    <Input type="password" size="large" v-model="password" placeholder="密码" />
+                    <Input type="password" size="large" v-model="password" placeholder="密码"  @on-enter="login"/>
                 </FormItem>
                 <FormItem>
                     <Button type="success" size="large" long @click="login">登录</Button>

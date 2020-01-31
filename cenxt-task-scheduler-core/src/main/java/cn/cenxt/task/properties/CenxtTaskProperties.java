@@ -123,7 +123,6 @@ public class CenxtTaskProperties {
          */
         private int maxTryCount = 5;
 
-        private String contentPath = "/cenxt-task-view";
 
         public boolean isEnabled() {
             return enabled;
@@ -181,12 +180,5 @@ public class CenxtTaskProperties {
             this.maxTryCount = maxTryCount;
         }
 
-        public String getContentPath() {
-            return contentPath;
-        }
-
-        public void setContentPath(String contentPath) {
-            this.contentPath = contentPath;
-        }
     }
 }

@@ -105,7 +105,7 @@ public class ApiController {
     }
 
     /**
-     * 获取所有任务列表
+     * 获取cron执行计划
      */
     @PostMapping("/cron-explain")
     public ResponseEntity<List<Date>> cronExpalin(@RequestBody CronExplain cronExplain) {

@@ -19,12 +19,9 @@ import java.io.IOException;
 public class CenxtTaskFilter implements Filter {
 
 
-    private CenxtTaskProperties taskProperties;
-
     private CenxtSecurityService securityService;
 
-    public CenxtTaskFilter(CenxtTaskProperties taskProperties, CenxtSecurityService securityService) {
-        this.taskProperties = taskProperties;
+    public CenxtTaskFilter(CenxtSecurityService securityService) {
         this.securityService = securityService;
     }
 
@@ -36,11 +33,16 @@ public class CenxtTaskFilter implements Filter {
 
         //排除登录地址
         String[] urls = {
-                taskProperties.getView().getContentPath() + "/api/login",
-                taskProperties.getView().getContentPath() + "/#/login",
-                taskProperties.getView().getContentPath() + "/#/",
-                taskProperties.getView().getContentPath() + "/",
-                taskProperties.getView().getContentPath() + "/index.html",
+                request.getContextPath() + "/cenxt-task-view/api/login",
+                request.getContextPath() + "/cenxt-task-view/#/login",
+                request.getContextPath() + "/cenxt-task-view/#/",
+                request.getContextPath() + "/cenxt-task-view/",
+                request.getContextPath() + "/cenxt-task-view/css/**",
+                request.getContextPath() + "/cenxt-task-view/fonts/**",
+                request.getContextPath() + "/cenxt-task-view/img/**",
+                request.getContextPath() + "/cenxt-task-view/js/**",
+                request.getContextPath() + "/cenxt-task-view/favicon.ico",
+                request.getContextPath() + "/cenxt-task-view/index.html",
         };
         AntPathMatcher pathMatcher = new AntPathMatcher();
         for (String str : urls) {
@@ -58,7 +60,7 @@ public class CenxtTaskFilter implements Filter {
             response.getWriter().flush();
             return;
         }
-        if (pathMatcher.match(url, taskProperties.getView().getContentPath() + "/api/admin/**")) {
+        if (pathMatcher.match(url, request.getContextPath() + "/cenxt-task-view/api/admin/**")) {
 
             if (role.getRole() < 1) {
                 //标记为无权限
