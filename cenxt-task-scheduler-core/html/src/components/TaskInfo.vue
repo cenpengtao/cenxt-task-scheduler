@@ -1,0 +1,197 @@
+<template>
+<Form ref="taskInfoValidate" :model="taskInfo" :rules="taskInfoRules" label-position="left" :label-width="120">
+    <Row>
+        <Col span="10">
+        <FormItem label="名称" prop="name">
+            <Select v-model="taskInfo.name" placeholder="名称" clearable>
+                <Option v-for="item in jobs" :value="item" :key="item">{{ item }}</Option>
+            </Select>
+        </FormItem>
+        </Col>
+        <Col span="13" offset="1">
+        <FormItem label="表达式" prop="cronStr" :label-width="70">
+            <Poptip trigger="focus" :title="'接下来'+explainSize+'次的执行时间'" style="width:100%" placement="bottom">
+                <Input v-model="taskInfo.cronStr" placeholder="Spring cron表达式，如：0/30 * * * * ? (每30秒执行一次)" clearable @on-change="cronChange" show-word-limit maxlength="200" />
+                <div slot="content">
+                    <table v-if="cronExplain.length>0">
+                        <tbody>
+                            <tr v-for="(item,i) in cronExplain" :value="item" :key="i">
+                                <td>{{item|formatDate}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <span v-else style="color:red">无效的表达式</span>
+                </div>
+            </Poptip>
+        </FormItem>
+        </Col>
+
+    </Row>
+    <Row>
+        <Col span="10">
+        <FormItem label="下次执行时间" prop="nextTime">
+            <DatePicker type="datetime" v-model="taskInfo.nextTime" placeholder="下次执行时间" clearable />
+        </FormItem>
+        </Col>
+        <Col span="6" offset="1">
+        <FormItem label="超时时间(分)" prop="expire">
+            <InputNumber :min="1" v-model="taskInfo.expire" placeholder="超时时间（分）" clearable />
+        </FormItem>
+        </Col>
+        <Col span="6" offset="1">
+        <FormItem label="重试次数" prop="retryTimes">
+            <InputNumber :min="0" :max="5" v-model="taskInfo.retryTimes" placeholder="重试次数" clearable />
+        </FormItem>
+        </Col>
+    </Row>
+    <Row>
+        <FormItem label="描述" prop="description">
+            <Input v-model="taskInfo.description" placeholder="描述" type="textarea" :rows="2" clearable show-word-limit maxlength="200" />
+        </FormItem>
+    </Row>
+    <Row>
+        <FormItem label="参数(JSON)" prop="params">
+            <Input v-model="taskInfo.params" placeholder="参数(JSON)" type="textarea" :rows="10" clearable show-word-limit maxlength="4000" />
+        </FormItem>
+    </Row>
+</Form>
+</template>
+
+<script>
+import http from "./../api/http.js";
+import util from "./../util/index.js";
+export default {
+    data() {
+        return {
+            taskInfo: {},
+            jobs: [],
+            explainSize: 5,
+            cronExplain: [],
+            taskInfoRules: {
+                name: [{
+                    required: true,
+                    message: "名称必填",
+                    trigger: "blur"
+                }],
+                cronStr: [{
+                    required: true,
+                    message: "表达式必填",
+                    trigger: "blur"
+                }],
+                nextTime: [{
+                        required: true,
+                        type: "date",
+                        message: "下次执行时间必填",
+                        trigger: "blur"
+                    }
+                ],
+                expire: [{
+                        required: true,
+                        type: "integer",
+                        message: "超时时间必填",
+                        trigger: "blur"
+                    }
+                ],
+                retryTimes: [{
+                        required: true,
+                        type: "integer",
+                        message: "重试次数必填",
+                        trigger: "blur"
+                    }
+                ],
+                description: [{
+                        required: true,
+                        message: "描述必填",
+                        trigger: "blur"
+                    }
+                ],
+                params: [{
+                        validator(rule, value, callback, source, options) {
+                            var errors = [];
+                            if (!!!value) {
+                                callback(errors);
+                                return
+                            }
+                            try{
+                                var param=JSON.parse(value)
+                                if(typeof(param)!='object'){
+                                    errors.push(new Error(typeof(param)+"非JSON Object类型"));
+                                }
+                            }catch(e){
+                                errors.push(new Error("参数非JSON类型,错误信息:"+e.message));
+                            }
+                            callback(errors);
+                            return
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    filters: {
+        formatDate: util.formatDate
+    },
+    props: {
+        value: {
+            type: Object,
+            default () {
+                return {};
+            }
+        },
+        disabled: {
+            type: Boolean,
+            default () {
+                return false;
+            }
+        }
+    },
+    created: function () {
+        this.getJobs()
+    },
+    watch: {
+        value: function () {
+            if (this.value == undefined || this.value == null || this.value.trim() == '') {
+                this.$refs.selectRef.clearSingleSelect()
+            }
+            var that = this
+            this.getUser(this.value, function () {
+                that.$nextTick(function () {
+                    that.selected = that.value
+                })
+            })
+        }
+    },
+    methods: {
+        getJobs: function () {
+            http.get("/api/jobs", data => {
+                this.jobs = data;
+            });
+        },
+        cronChange: function () {
+            this.getCronExplain(this.taskInfo.cronStr)
+        },
+        getCronExplain: function (str) {
+            http.post("/api/cron-explain", {
+                    cronStr: str,
+                    size: this.explainSize
+                },
+                data => {
+                    this.cronExplain = data
+                });
+        },
+        onChange: function (value) {
+            this.$emit('input', value)
+        }
+    }
+}
+</script>
+
+<style>
+.ivu-poptip-rel {
+    width: 100%;
+}
+
+.ivu-poptip-popper {
+    width: 100%;
+}
+</style>
