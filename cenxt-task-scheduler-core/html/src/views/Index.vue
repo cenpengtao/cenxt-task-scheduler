@@ -4,7 +4,7 @@
 <template>
 <div>
     <div style="width:100%;height:40px">
-        <Button type="success" icon="md-add" style="float:left" @click="onAddTask">新增任务</Button>
+        <Button v-if="role=='ADMIN'" type="success" icon="md-add" style="float:left" @click="onAddTask">新增任务</Button>
         <Button type="success" icon="md-refresh" style="float:right" @click="getTasks">刷新</Button>
     </div>
     <Table :loading="loading" :columns="columns" :data="tasks" size="small" highlight-row border stripe></Table>
@@ -45,6 +45,7 @@ export default {
     data() {
         return {
             tasks: [],
+            role: "GUEST",
             loading: false,
             execHistory: [],
             execHistoryTask: {},
@@ -52,8 +53,7 @@ export default {
             execHistoryModal: false,
             taskModel: false,
             taskInfo: {},
-            columns: [
-                {
+            columns: [{
                     title: '任务编号',
                     key: 'id',
                     width: 100,
@@ -178,12 +178,12 @@ export default {
                     align: "center",
                     fixed: "right",
                     render: (h, params) => {
-
-                        return h("div", [
-                            h(
+                        const menu = []
+                        if (this.role == "ADMIN") {
+                            menu.push(h(
                                 "Button", {
                                     props: {
-                                        type:  params.row.enabled?"error":"success",
+                                        type: params.row.enabled ? "error" : "success",
                                         size: "small",
                                     },
                                     on: {
@@ -191,8 +191,9 @@ export default {
                                             this.enableTask(params.row)
                                         }
                                     }
-                                }, params.row.enabled?"禁用":"启用"
-                            ), h(
+                                }, params.row.enabled ? "禁用" : "启用"
+                            ))
+                            menu.push(h(
                                 "Button", {
                                     props: {
                                         type: "info",
@@ -209,7 +210,8 @@ export default {
                                         }
                                     }
                                 }, "编辑"
-                            ), h(
+                            ))
+                            menu.push(h(
                                 "Button", {
                                     props: {
                                         type: "error",
@@ -225,24 +227,26 @@ export default {
                                         }
                                     }
                                 }, "删除"
-                            ), h(
-                                "Button", {
-                                    props: {
-                                        type: "warning",
-                                        size: "small",
-                                        icon: "md-list"
-                                    },
-                                    style: {
-                                        marginLeft: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.getExecHistory(params.row)
-                                        }
+                            ))
+                        }
+                        menu.push(h(
+                            "Button", {
+                                props: {
+                                    type: "warning",
+                                    size: "small",
+                                    icon: "md-list"
+                                },
+                                style: {
+                                    marginLeft: "5px"
+                                },
+                                on: {
+                                    click: () => {
+                                        this.getExecHistory(params.row)
                                     }
-                                }, "执行记录"
-                            )
-                        ]);
+                                }
+                            }, "执行记录"
+                        ))
+                        return h("div", menu);
                     }
                 }
             ],
@@ -315,8 +319,8 @@ export default {
                     }
                 },
                 {
-                    title: '错误信息',
-                    key: 'errorMessage',
+                    title: '执行信息',
+                    key: 'execMessage',
                     minWidth: 160,
                     tooltip: true
                 }
@@ -326,13 +330,14 @@ export default {
     },
     mounted: function () {
         this.getTasks()
+        this.role = window.sessionStorage.getItem("ROLE")
     },
     methods: {
         onAddTask: function () {
             this.taskInfo = {
                 expire: 5,
                 retryTimes: 0,
-                params:"{}"
+                params: "{}"
             }
             this.taskModel = true;
         },

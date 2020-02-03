@@ -79,7 +79,8 @@ export default {
                 username: this.username,
                 password: this.password
             }, role => {
-                this.$router.push({path:'/',params:{role:role}})
+                window.sessionStorage.setItem("ROLE",role)
+                this.$router.push("/")
             }, e => {
                 this.$Notice.error({
                     title: '[' + e.code + '] ' + e.message

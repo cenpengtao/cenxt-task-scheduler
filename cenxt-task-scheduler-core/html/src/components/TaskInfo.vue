@@ -210,6 +210,9 @@ export default {
         onConfirm: function () {
             const that = this;
             that.$refs.taskInfoValidate.validate(valid => {
+                if(!valid){
+                    return
+                }
                 that.taskInfo.params=JSON.stringify(JSON.parse(that.taskInfo.params),null,2)
                 that.$Spin.show();
                 http.post("/api/admin/task", that.taskInfo,

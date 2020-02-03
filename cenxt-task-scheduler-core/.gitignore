@@ -30,5 +30,6 @@ target
 **/node_modules
 **/dist
 **/.env.development
+package-lock.json
 ### VS Code ###
 .vscode/
