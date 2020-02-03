@@ -35,6 +35,7 @@ public class TaskExecHistoryClearJob implements CenxtJob {
         Date nowTime = cenxtTaskService.getNowTime();
         Date date = new Date(nowTime.getTime() - beforeDay * 24 * 60 * 60 * 100);
         int count = cenxtTaskService.deleteExecHistory(date);
+        Thread.sleep(1500);
         logger.info("delete success,count:{}", count);
         return true;
     }

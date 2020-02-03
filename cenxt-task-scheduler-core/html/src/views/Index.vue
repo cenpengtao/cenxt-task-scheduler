@@ -4,21 +4,13 @@
 <template>
 <div>
     <div style="width:100%;height:40px">
-        <Button type="success" icon="md-add" style="float:left" @click="newTaskModel=true">新增任务</Button>
+        <Button type="success" icon="md-add" style="float:left" @click="onAddTask">新增任务</Button>
         <Button type="success" icon="md-refresh" style="float:right" @click="getTasks">刷新</Button>
     </div>
     <Table :loading="loading" :columns="columns" :data="tasks" size="small" highlight-row border stripe></Table>
 
-    <Modal v-model="newTaskModel" :width="900">
-        <p slot="header">
-            <span>新建任务</span>
-        </p>
-        <TaskInfo />
-        <div slot="footer">
-            <Button type="success">确定</Button>
-            <Button type="error">清空</Button>
-        </div>
-    </Modal>
+    <TaskInfo v-model="taskModel" :taskInfoProp="taskInfo"/>
+
     <Modal v-model="execHistoryModal" fullscreen>
         <p slot="header">
             <span>执行记录（最近{{execHistorySize}}条）</span>
@@ -58,8 +50,8 @@ export default {
             execHistoryTask: {},
             execHistorySize: 18,
             execHistoryModal: false,
-            newTaskModel: false,
-            newTask: {},
+            taskModel: false,
+            taskInfo: {},
             columns: [{
                     title: '序号',
                     type: 'index',
@@ -236,7 +228,10 @@ export default {
                                         margin: "0 10px"
                                     },
                                     on: {
-                                        click: () => {}
+                                        click: () => {
+                                            this.taskInfo = params.row
+                                            this.taskModel = true;
+                                        }
                                     }
                                 }, "编辑"
                             ), h(
@@ -339,6 +334,13 @@ export default {
         this.getTasks()
     },
     methods: {
+        onAddTask: function () {
+            this.taskInfo = {
+                expire:5,
+                retryTimes:0
+            }
+            this.taskModel = true;
+        },
         getTasks: function () {
             this.loading = true
             http.get("/api/tasks", data => {
@@ -349,11 +351,15 @@ export default {
             });
         },
         getExecHistory: function (task) {
+            this.$Spin.show();
             this.execHistory = [];
             this.execHistoryTask = task;
             http.get("/api/exec-history/" + task.id + "/" + this.execHistorySize, data => {
                 this.execHistory = data;
                 this.execHistoryModal = true;
+                this.$Spin.hide();
+            }, e => {
+                this.$Spin.hide();
             });
         }
     }
