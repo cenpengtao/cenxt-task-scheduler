@@ -31,4 +31,4 @@ logging:
       cenxt: DEBUG
 server:
   servlet:
-    context-path:
+    context-path: /abc
