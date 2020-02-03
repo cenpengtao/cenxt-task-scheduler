@@ -60,7 +60,7 @@ public class CenxtTaskFilter implements Filter {
             response.getWriter().flush();
             return;
         }
-        if (pathMatcher.match(url, request.getContextPath() + "/cenxt-task-view/api/admin/**")) {
+        if (pathMatcher.match(request.getContextPath() + "/cenxt-task-view/api/admin/**",url)) {
 
             if (role.getRole() < 1) {
                 //标记为无权限

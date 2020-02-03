@@ -9,7 +9,7 @@
     </div>
     <Table :loading="loading" :columns="columns" :data="tasks" size="small" highlight-row border stripe></Table>
 
-    <TaskInfo v-model="taskModel" :taskInfoProp="taskInfo"/>
+    <TaskInfo v-model="taskModel" :taskInfoProp="taskInfo" @on-ok="getTasks" />
 
     <Modal v-model="execHistoryModal" fullscreen>
         <p slot="header">
@@ -52,15 +52,11 @@ export default {
             execHistoryModal: false,
             taskModel: false,
             taskInfo: {},
-            columns: [{
-                    title: '序号',
-                    type: 'index',
-                    width: 70
-                },
+            columns: [
                 {
-                    title: '编号',
+                    title: '任务编号',
                     key: 'id',
-                    width: 80,
+                    width: 100,
                     tooltip: true,
                     fixed: "left"
                 },
@@ -76,24 +72,6 @@ export default {
                     key: 'description',
                     width: 180,
                     tooltip: true
-                },
-                {
-                    title: '启用状态',
-                    key: 'enabled',
-                    width: 100,
-                    render: (h, params) => {
-                        var color = 'red'
-                        var label = '禁用'
-                        if (params.row.enabled) {
-                            color = 'green'
-                            label = '启用'
-                        }
-                        return h("span", {
-                            style: {
-                                color: color
-                            }
-                        }, label);
-                    }
                 },
                 {
                     title: '执行状态',
@@ -150,10 +128,7 @@ export default {
                     title: '参数',
                     key: 'params',
                     width: 150,
-                    tooltip: true,
-                    render: (h, params) => {
-                        return h("span", JSON.stringify(params.row.params));
-                    }
+                    tooltip: true
                 },
                 {
                     title: '超时(分)',
@@ -173,7 +148,7 @@ export default {
                     width: 150,
                     tooltip: true,
                     render: (h, params) => {
-                        return h("span", util.formatDate(params.row.nextTime));
+                        return h("span", util.formatDate(params.row.createTime));
                     }
                 },
                 {
@@ -182,7 +157,7 @@ export default {
                     width: 150,
                     tooltip: true,
                     render: (h, params) => {
-                        return h("span", util.formatDate(params.row.nextTime));
+                        return h("span", util.formatDate(params.row.updateTime));
                     }
                 },
                 {
@@ -199,7 +174,7 @@ export default {
                 },
                 {
                     title: '操作',
-                    width: 300,
+                    width: 330,
                     align: "center",
                     fixed: "right",
                     render: (h, params) => {
@@ -208,15 +183,15 @@ export default {
                             h(
                                 "Button", {
                                     props: {
-                                        type: "success",
+                                        type:  params.row.enabled?"error":"success",
                                         size: "small",
                                     },
                                     on: {
                                         click: () => {
-
+                                            this.enableTask(params.row)
                                         }
                                     }
-                                }, "启用"
+                                }, params.row.enabled?"禁用":"启用"
                             ), h(
                                 "Button", {
                                     props: {
@@ -225,7 +200,7 @@ export default {
                                         icon: "md-create"
                                     },
                                     style: {
-                                        margin: "0 10px"
+                                        marginLeft: "5px"
                                     },
                                     on: {
                                         click: () => {
@@ -237,9 +212,28 @@ export default {
                             ), h(
                                 "Button", {
                                     props: {
+                                        type: "error",
+                                        size: "small",
+                                        icon: "md-trash"
+                                    },
+                                    style: {
+                                        marginLeft: "5px"
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.deleteTask(params.row)
+                                        }
+                                    }
+                                }, "删除"
+                            ), h(
+                                "Button", {
+                                    props: {
                                         type: "warning",
                                         size: "small",
                                         icon: "md-list"
+                                    },
+                                    style: {
+                                        marginLeft: "5px"
                                     },
                                     on: {
                                         click: () => {
@@ -336,10 +330,54 @@ export default {
     methods: {
         onAddTask: function () {
             this.taskInfo = {
-                expire:5,
-                retryTimes:0
+                expire: 5,
+                retryTimes: 0,
+                params:"{}"
             }
             this.taskModel = true;
+        },
+        deleteTask: function (task) {
+            const that = this;
+            this.$Modal.confirm({
+                title: "确定删除" + task.name,
+                content: "删除" + task.name + " 编号：" + task.id,
+                onOk: function () {
+                    that.$Spin.show();
+                    http.delete("/api/admin/task/" + task.id, () => {
+                        that.$Spin.hide();
+                        that.$Notice.success({
+                            title: "删除成功"
+                        });
+                        that.getTasks()
+                    }, e => {
+                        that.$Spin.hide();
+                        that.$Notice.error({
+                            title: e.message
+                        });
+                    })
+                }
+            })
+
+        },
+        enableTask: function (task) {
+            var url = "/api/admin/task/enabled/"
+            if (task.enabled) {
+                url = "/api/admin/task/disabled/"
+            }
+            this.$Spin.show();
+            http.post(url + task.id, {},
+                () => {
+                    this.$Spin.hide();
+                    this.$Notice.success({
+                        title: "操作成功"
+                    });
+                    this.getTasks()
+                }, e => {
+                    this.$Spin.hide();
+                    this.$Notice.error({
+                        title: e.message
+                    });
+                })
         },
         getTasks: function () {
             this.loading = true

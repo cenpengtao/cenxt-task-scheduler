@@ -63,8 +63,8 @@
         </Row>
     </Form>
     <div slot="footer">
-        <Button type="success">确定</Button>
-        <Button type="error" @click="onClear">清空</Button>
+        <Button type="success" @click="onConfirm">确定</Button>
+        <Button v-if="!!!taskInfo.id" type="error" @click="onClear">清空</Button>
         <Button @click="onCancel">取消</Button>
     </div>
 </Modal>
@@ -133,12 +133,13 @@ export default {
                     trigger: "blur"
                 }],
                 params: [{
+                    required: true,
+                    message: "参数必填",
+                    trigger: "blur"
+                },
+                {
                     validator(rule, value, callback, source, options) {
                         var errors = [];
-                        if (!!!value) {
-                            callback(errors);
-                            return
-                        }
                         try {
                             var param = JSON.parse(value)
                             if (typeof (param) != 'object') {
@@ -179,12 +180,8 @@ export default {
         value: function (value) {
             if (value) {
                 this.$refs.taskInfoValidate.resetFields()
-                var tmp = JSON.parse(JSON.stringify(this.taskInfoProp))
-                if (typeof (tmp.params) == 'object') {
-                    tmp.params = JSON.stringify(tmp.params, null, 2)
-                }
-                this.taskInfo = tmp
-
+                this.cronExplain = []
+                this.taskInfo = JSON.parse(JSON.stringify(this.taskInfoProp))
             }
             this.taskModel = value
         }
@@ -195,9 +192,6 @@ export default {
                 this.jobs = data;
             });
         },
-        cronChange: function () {
-            this.getCronExplain(this.taskInfo.cronStr)
-        },
         getCronExplain: function (str, callback) {
             http.post("/api/cron-explain", {
                     cronStr: str,
@@ -205,10 +199,37 @@ export default {
                 },
                 data => {
                     this.cronExplain = data
+                    if(data.length>0){
+                        this.taskInfo.nextTime=util.formatDate(data[0])
+                    }
                     callback && callback(data.length > 0)
                 }, e => {
                     callback && callback(false)
                 });
+        },
+        onConfirm: function () {
+            const that = this;
+            that.$refs.taskInfoValidate.validate(valid => {
+                that.taskInfo.params=JSON.stringify(JSON.parse(that.taskInfo.params),null,2)
+                that.$Spin.show();
+                http.post("/api/admin/task", that.taskInfo,
+                    () => {
+                        this.$emit('on-ok',that.taskInfo)
+                        that.$Spin.hide();
+                        that.$Notice.success({
+                            title: "新增成功"
+                        });
+                        this.$emit('input', false)
+                        this.taskModel = false
+                    },
+                    e => {
+                        that.$Spin.hide();
+                        that.$Notice.error({
+                            title: e.message
+                        });
+                    })
+            })
+
         },
         onCancel: function () {
             this.taskModel = false

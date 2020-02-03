@@ -111,7 +111,7 @@ public class Constants {
     /**
      * 锁定任务
      */
-    public static final String SQL_QUERY_LOCK_TASK = "UPDATE cenxt_task SET flag=1,exec_time=NOW(),exec_ip=? WHERE id=? AND enabled=1 AND exec_time=?";
+    public static final String SQL_QUERY_LOCK_TASK = "UPDATE cenxt_task SET flag=1,exec_time=NOW(),exec_ip=? WHERE id=? AND enabled=1 AND (exec_time=? OR exec_time IS NULL)";
     /**
      * 释放任务
      */
@@ -124,7 +124,24 @@ public class Constants {
     /**
      * 新增执行记录
      */
-    public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO cenxt_exec_history (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `error_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+    public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO cenxt_exec_history (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `error_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    /**
+     * 新增任务
+     */
+    public static final String SQL_INSERT_TASK = "INSERT INTO `cenxt_task` (`name`, `description`, `cron_str`, `expire`, `retry_times`, `params`, `next_time`, `create_time`, `creator`) \n" +
+                                                            "VALUES (?, ?, ?, ?, ?, ?, ?, now(), ?);";
+    /**
+     * 修改任务
+     */
+    public static final String SQL_UPDATE_TASK = "UPDATE `cenxt_task` SET `name`=?, `description`=?, `cron_str`=?, `expire`=?, `retry_times`=?, `params`=?, `next_time`=?,`updator`=?, `update_time`=now() WHERE  `id`=?";
+    /**
+     * 修改任务启用状态
+     */
+    public static final String SQL_UPDATE_TASK_ENABLE ="UPDATE `cenxt_task` SET `enabled`=?,`updator`=?, `update_time`=now() WHERE  `id`=?";
+    /**
+     * 删除任务
+     */
+    public static final String SQL_DELETE_TASK ="DELETE FROM `cenxt_task` WHERE  `id`=?";
     /**
      * 获取所有任务
      */
@@ -136,5 +153,5 @@ public class Constants {
     /**
      * 删除执行记录
      */
-    public static final String SQL_DELETE_EXEC_HISTORY = "DELETE FROM cenxt_exec_history WHERE exec_time<?";
+    public static final String SQL_DELETE_EXEC_HISTORY = "DELETE FROM cenxt_exec_history WHERE exec_time<? LIMIT ?";
 }

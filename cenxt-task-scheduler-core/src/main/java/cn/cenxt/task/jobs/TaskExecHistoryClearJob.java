@@ -18,6 +18,7 @@ public class TaskExecHistoryClearJob implements CenxtJob {
     private static Logger logger = LoggerFactory.getLogger(TaskExecHistoryClearJob.class);
 
     private static final String PARAM_BEFORE_DAY = "beforeDay";
+    private static final String SIZE = "size";
 
     @Autowired
     private CenxtTaskService cenxtTaskService;
@@ -31,10 +32,11 @@ public class TaskExecHistoryClearJob implements CenxtJob {
     @Override
     public boolean exec(Task task) throws Exception {
         logger.info(task.toString());
-        Integer beforeDay = task.getParam(PARAM_BEFORE_DAY, Integer.class, 3);
+        int beforeDay = task.getParam(PARAM_BEFORE_DAY, Integer.class, 3);
+        int size = task.getParam(SIZE, Integer.class, 100);
         Date nowTime = cenxtTaskService.getNowTime();
         Date date = new Date(nowTime.getTime() - beforeDay * 24 * 60 * 60 * 100);
-        int count = cenxtTaskService.deleteExecHistory(date);
+        int count = cenxtTaskService.deleteExecHistory(date,size);
         Thread.sleep(1500);
         logger.info("delete success,count:{}", count);
         return true;

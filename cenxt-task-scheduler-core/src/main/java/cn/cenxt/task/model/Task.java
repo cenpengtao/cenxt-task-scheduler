@@ -2,6 +2,7 @@ package cn.cenxt.task.model;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class Task implements Serializable {
     /**
      * 参数字符串，json
      */
-    private JSONObject params;
+    private String params;
 
     /**
      * 执行时间
@@ -159,14 +160,21 @@ public class Task implements Serializable {
      * 获取任务执行参数
      */
     public <T> T getParam(String key, Class<T> clazz, T defaultValue) {
-        if (params == null) {
+        JSONObject jsonObject=null;
+        if (!StringUtils.isEmpty(params)) {
+            Object object = JSON.parse(params);
+            if (object instanceof JSONObject) {
+                jsonObject = (JSONObject) object;
+            }
+        }
+        if (jsonObject == null) {
             return defaultValue;
         }
-        T value = params.getObject(key, clazz);
+        T value = jsonObject.getObject(key, clazz);
         return value == null ? defaultValue : value;
     }
 
-    public void setParams(JSONObject params) {
+    public void setParams(String params) {
         this.params = params;
     }
 
@@ -210,7 +218,7 @@ public class Task implements Serializable {
         this.flag = flag;
     }
 
-    public JSONObject getParams() {
+    public String getParams() {
         return params;
     }
 

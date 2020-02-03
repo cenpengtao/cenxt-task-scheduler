@@ -64,10 +64,11 @@ const http = {
             console.error(e.response)
             //未登录
             if (e.response.status == '401') {
+                callback && callback({message:'未登录',code:401})
                 //跳转到登录页面
                 router.push("/login")
             } else if (e.response.status == '403') {
-                //删除本地token信息
+                callback && callback({message:'无权访问',code:403})
                 //跳转到登录页面
                 router.path!='/'&&router.replace('/')
             } else {

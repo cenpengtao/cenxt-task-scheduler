@@ -121,11 +121,28 @@ public class ApiController {
         return ResponseEntity.ok(cenxtTaskService.getExecHistory(taskId, size));
     }
 
-//    /**
-//     * 登录检查
-//     */
-//    @GetMapping("/login/check")
-//    public ResponseEntity check(@SessionAttribute(name = Constants.SESSION_USERNAME, required = false) String username) {
-//        return null;
-//    }
+
+    @PostMapping("/admin/task")
+    public ResponseEntity<String> saveTask(@RequestBody Task task,
+                                           @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
+        cenxtTaskService.saveTask(task,username);
+        return ResponseEntity.ok("");
+    }
+    @PostMapping("/admin/task/enabled/{id}")
+    public ResponseEntity<String> enabledTask(@PathVariable("id") int id,
+                                           @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
+        cenxtTaskService.enableTask(id,true,username);
+        return ResponseEntity.ok("");
+    }
+    @PostMapping("/admin/task/disabled/{id}")
+    public ResponseEntity<String> disabledTask(@PathVariable("id") int id,
+                                               @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
+        cenxtTaskService.enableTask(id,false,username);
+        return ResponseEntity.ok("");
+    }
+    @DeleteMapping("/admin/task/{id}")
+    public ResponseEntity<String> deleteTask(@PathVariable("id") int id){
+        cenxtTaskService.deleteTask(id);
+        return ResponseEntity.ok("");
+    }
 }

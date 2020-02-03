@@ -43,14 +43,8 @@ public class TaskRowMapper implements RowMapper<Task> {
             task.setMobiles(Arrays.asList(mobilesStr.split(";")));
         }
 
-        String paramStr = resultSet.getString("params");
-        if (!StringUtils.isEmpty(paramStr)) {
-            Object object = JSON.parse(paramStr);
-            if (object instanceof JSONObject) {
-                JSONObject params = (JSONObject) object;
-                task.setParams(params);
-            }
-        }
+        task.setParams(resultSet.getString("params"));
+
         return task;
     }
 }

@@ -7,6 +7,7 @@ import cn.cenxt.task.model.ExecHistory;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.utils.CronAnalysisUtil;
 import cn.cenxt.task.utils.IpUtil;
+import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -143,9 +144,49 @@ public class CenxtTaskService {
      * 删除执行记录
      *
      * @param date 什么时间之前
+     * @param size 删除行数
      * @return 删除行数
      */
-    public int deleteExecHistory(Date date) {
-        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date);
+    public int deleteExecHistory(Date date,int size) {
+        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date,size);
+    }
+
+    /**
+     * 保存任务
+     * @param task 任务
+     * @param username 用户名
+     */
+    public void saveTask(Task task, String username) {
+        if(task.getId()>0){
+            jdbcTemplate.update(Constants.SQL_UPDATE_TASK,
+                    task.getName(),task.getDescription(),
+                    task.getCronStr(),task.getExpire(),task.getRetryTimes(),
+                    task.getParams(),task.getNextTime(),
+                    username,
+                    task.getId());
+        }else {
+            jdbcTemplate.update(Constants.SQL_INSERT_TASK,
+                    task.getName(),task.getDescription(),
+                    task.getCronStr(),task.getExpire(),task.getRetryTimes(),
+                    task.getParams(),task.getNextTime(),
+                    username);
+        }
+    }
+
+    /**
+     * 修改任务启用状态
+     * @param id 任务编号
+     * @param enabled 启用状态
+     */
+    public void enableTask(int id,boolean enabled, String username){
+        jdbcTemplate.update(Constants.SQL_UPDATE_TASK_ENABLE,enabled?1:0,username,id);
+    }
+
+    /**
+     * 删除任务
+     * @param id 任务编号
+     */
+    public void deleteTask(int id) {
+        jdbcTemplate.update(Constants.SQL_DELETE_TASK,id);
     }
 }
