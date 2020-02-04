@@ -5,8 +5,8 @@
 - 支持任务重试
 - 支持任务异常重跑
 - 支持UI界面控制
-##快速使用
-####1、引入依赖
+## 快速使用
+#### 1、引入依赖
 ```
 <dependency>
     <groupId>cn.cenxt</groupId>
@@ -14,7 +14,7 @@
     <version>1.0.0</version>
 </dependency>
 ```
-####2、启动类添加@EnableCenxtTask，启用任务调度服务
+#### 2、启动类添加@EnableCenxtTask，启用任务调度服务
 ```
 @SpringBootApplication
 @EnableCenxtTask
@@ -24,7 +24,7 @@ public class CenxtTaskSchedulerDemoApplication {
 	}
 }
 ```
-####3、编写任务代码，实现CenxtJob接口，并添加@TaskInfo描述任务信息（可选）
+#### 3、编写任务代码，实现CenxtJob接口，并添加@TaskInfo描述任务信息（可选）
 ```
 @Component
 @TaskInfo(description = "测试任务",paramsDescription = "{}",cron = "0 */1 * * * ?")
@@ -45,17 +45,17 @@ public class TestJob implements CenxtJob {
     }
 }
 ```
-####4、启动服务，打开控制页面，维护任务
+#### 4、启动服务，打开控制页面，维护任务
 http://localhost:8080/{应用上下文(可选)}/cenxt-task-view/index.html
 demo地址:http://cenxt.cn/task-demo/cenxt-task-view/index.html
 
 默认账户：admin/admin、guest/guest
 
 ##进阶
-####1、参数配置
+#### 1、参数配置
 
-####2、数据统计
+#### 2、数据统计
 
-####3、任务监听器
+#### 3、任务监听器
 
-####4、自定义验证
+#### 4、自定义验证
