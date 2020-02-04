@@ -6,4 +6,4 @@ ADD dist/*.tar.gz /appdata/cenxt-task-scheduler-demo/
 ENV SPRING_PROFILES_ACTIVE prod
 ENV TZ 'Asia/Shanghai'
 EXPOSE 8070
-CMD sh /appdata/appdata/cenxt-task-scheduler-demo/bin/appdata/cenxt-task-scheduler-demo.sh start
+CMD sh /appdata/cenxt-task-scheduler-demo/bin/appdata/cenxt-task-scheduler-demo.sh start
