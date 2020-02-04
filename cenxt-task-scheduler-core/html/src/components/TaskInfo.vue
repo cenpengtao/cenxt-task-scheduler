@@ -182,6 +182,7 @@ export default {
                 this.$refs.taskInfoValidate.resetFields()
                 this.cronExplain = []
                 this.taskInfo = JSON.parse(JSON.stringify(this.taskInfoProp))
+                this.taskInfo.nextTime= new Date(util.formatDate(this.taskInfo.nextTime))
             }
             this.taskModel = value
         }
@@ -200,7 +201,7 @@ export default {
                 data => {
                     this.cronExplain = data
                     if(data.length>0){
-                        this.taskInfo.nextTime=util.formatDate(data[0])
+                        this.taskInfo.nextTime= new Date(util.formatDate(data[0]))
                     }
                     callback && callback(data.length > 0)
                 }, e => {

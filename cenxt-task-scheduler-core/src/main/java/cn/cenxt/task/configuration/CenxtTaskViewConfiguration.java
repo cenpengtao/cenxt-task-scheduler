@@ -1,11 +1,8 @@
 package cn.cenxt.task.configuration;
 
 import cn.cenxt.task.filter.CenxtTaskFilter;
-import cn.cenxt.task.properties.CenxtTaskProperties;
 import cn.cenxt.task.service.CenxtSecurityService;
 import cn.cenxt.task.service.DefaultCenxtSecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -13,7 +10,6 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
 
 /**
  * 控制界面配置
@@ -42,7 +38,7 @@ public class CenxtTaskViewConfiguration {
             havingValue = "true",
             matchIfMissing = true
     )
-    public FilterRegistrationBean<CenxtTaskFilter> cenxtTaskFilter( CenxtSecurityService cenxtSecurityService) {
+    public FilterRegistrationBean<CenxtTaskFilter> cenxtTaskFilter(CenxtSecurityService cenxtSecurityService) {
         FilterRegistrationBean<CenxtTaskFilter> filterRegistrationBean
                 = new FilterRegistrationBean<>(new CenxtTaskFilter(cenxtSecurityService));
         filterRegistrationBean.addUrlPatterns("/cenxt-task-view/*");

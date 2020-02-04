@@ -1,18 +1,24 @@
 package cn.cenxt.task.scheduler;
 
+import cn.cenxt.task.enums.ExecResultEnum;
+import cn.cenxt.task.enums.TaskStatusEnum;
 import cn.cenxt.task.jobs.CenxtJob;
 import cn.cenxt.task.listeners.CenxtTaskListener;
+import cn.cenxt.task.model.ExecHistory;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.service.CenxtTaskService;
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.FutureTask;
 
 /**
  * 执行包装类
  */
 public class ExecWrapper implements Runnable {
 
-    private final Logger log = LoggerFactory.getLogger(ExecWrapper.class);
+    private final Logger logger = LoggerFactory.getLogger(ExecWrapper.class);
     /**
      * 任务信息
      */
@@ -42,20 +48,63 @@ public class ExecWrapper implements Runnable {
 
     @Override
     public void run() {
-        Thread thread = new ExecThread(task, job, listener, cenxtTaskService);
-        try {
-            log.info("task thread begin ,execId:{}", task.getExecId());
-            thread.start();
+        cenxtTaskService.saveExecHistory(task, null, ExecResultEnum.RUNNING, null);
+        //传入执行记录
+        ExecHistory execHistory = new ExecHistory();
+        execHistory.setExecResult(ExecResultEnum.RUNNING.getResult());
+        FutureTask<ExecHistory> futureTask = new FutureTask<>(
+                //复制task
+                new ExecCallable(JSON.parseObject(JSON.toJSONString(task), Task.class),
+                        job, listener, execHistory));
+        Thread thread = new Thread(futureTask);
+        thread.setName(task.getExecId());
+
+        logger.info("task thread begin ,execId:{}", task.getExecId());
+        thread.start();
+        long start = System.currentTimeMillis();
+        while (!futureTask.isDone()) {
+            long cost = System.currentTimeMillis() - start;
+            execHistory.setCost(cost);
             //超时检查
             if (task.getExpire() > 0) {
-                thread.join(task.getExpire() * 60 * 1000);
-                //超时后停止线程
-                thread.interrupt();
-            } else {
-                thread.join();
+
+                if (cost > task.getExpire() * 60 * 1000) {
+                    try {
+                        logger.error("task expire, will call cancel,execId:{}", task.getExecId());
+                        //超时后停止线程
+                        futureTask.cancel(true);
+                    } catch (Exception e) {
+                        logger.error("cancel error", e);
+                    }
+                    execHistory.setExecResult(ExecResultEnum.INTERRUPTED.getResult());
+                    execHistory.setExecMessage(execHistory.getExecMessage() + "【错误】在" + cost + "毫秒之后,任务被中断");
+                    cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
+                    //释放任务
+                    cenxtTaskService.releaseTask(task, TaskStatusEnum.FAIL);
+                    return;
+                }
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            cenxtTaskService.saveExecHistory(task, null, execHistory);
+            try {
+                Thread.sleep(3000);
+            } catch (Exception ignored) {
+            }
         }
+        try {
+            execHistory = futureTask.get();
+            cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
+        } catch (Exception e) {
+            logger.error("futureTask get error", e);
+        }
+        if (execHistory.getExecResult() == ExecResultEnum.SUCCESS.getResult()
+                || execHistory.getExecResult() == ExecResultEnum.RETRY_SUCCESS.getResult()) {
+            //释放任务
+            cenxtTaskService.releaseTask(task, TaskStatusEnum.WAITING);
+        } else {
+            //释放任务
+            cenxtTaskService.releaseTask(task, TaskStatusEnum.FAIL);
+        }
+
+
     }
 }

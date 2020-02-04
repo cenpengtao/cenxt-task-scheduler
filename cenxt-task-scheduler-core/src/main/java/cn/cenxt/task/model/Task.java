@@ -5,9 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 任务
@@ -90,15 +88,6 @@ public class Task implements Serializable {
      * 更新人
      */
     private String updator;
-    /**
-     * 电子邮箱列表，用于发提醒邮件
-     */
-    private List<String> emails = new ArrayList<>();
-
-    /**
-     * 手机号列表，用于发提醒短信
-     */
-    private List<String> mobiles = new ArrayList<>();
 
     public int getId() {
         return id;
@@ -160,7 +149,7 @@ public class Task implements Serializable {
      * 获取任务执行参数
      */
     public <T> T getParam(String key, Class<T> clazz, T defaultValue) {
-        JSONObject jsonObject=null;
+        JSONObject jsonObject = null;
         if (!StringUtils.isEmpty(params)) {
             Object object = JSON.parse(params);
             if (object instanceof JSONObject) {
@@ -184,22 +173,6 @@ public class Task implements Serializable {
 
     public void setExecTime(Date execTime) {
         this.execTime = execTime;
-    }
-
-    public List<String> getEmails() {
-        return emails;
-    }
-
-    public void setEmails(List<String> emails) {
-        this.emails = emails;
-    }
-
-    public List<String> getMobiles() {
-        return mobiles;
-    }
-
-    public void setMobiles(List<String> mobiles) {
-        this.mobiles = mobiles;
     }
 
     public boolean isEnabled() {

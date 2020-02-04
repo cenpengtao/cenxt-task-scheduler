@@ -115,33 +115,44 @@ public class ApiController {
     @GetMapping("/exec-history/{taskId}/{size}")
     public ResponseEntity<List<ExecHistory>> execHistory(@PathVariable("taskId") int taskId,
                                                          @PathVariable("size") int size) {
-        if(size<1||size>100){
-            size=10;
+        if (size < 1 || size > 100) {
+            size = 10;
         }
         return ResponseEntity.ok(cenxtTaskService.getExecHistory(taskId, size));
     }
 
+    @GetMapping("/exec-history/error/{taskId}/{size}")
+    public ResponseEntity<List<ExecHistory>> errorExecHistory(@PathVariable("taskId") int taskId,
+                                                              @PathVariable("size") int size) {
+        if (size < 1 || size > 100) {
+            size = 10;
+        }
+        return ResponseEntity.ok(cenxtTaskService.getErrorExecHistory(taskId, size));
+    }
 
     @PostMapping("/admin/task")
     public ResponseEntity<String> saveTask(@RequestBody Task task,
-                                           @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
-        cenxtTaskService.saveTask(task,username);
+                                           @SessionAttribute(name = Constants.SESSION_USERNAME) String username) {
+        cenxtTaskService.saveTask(task, username);
         return ResponseEntity.ok("");
     }
+
     @PostMapping("/admin/task/enabled/{id}")
     public ResponseEntity<String> enabledTask(@PathVariable("id") int id,
-                                           @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
-        cenxtTaskService.enableTask(id,true,username);
+                                              @SessionAttribute(name = Constants.SESSION_USERNAME) String username) {
+        cenxtTaskService.enableTask(id, true, username);
         return ResponseEntity.ok("");
     }
+
     @PostMapping("/admin/task/disabled/{id}")
     public ResponseEntity<String> disabledTask(@PathVariable("id") int id,
-                                               @SessionAttribute(name = Constants.SESSION_USERNAME) String username){
-        cenxtTaskService.enableTask(id,false,username);
+                                               @SessionAttribute(name = Constants.SESSION_USERNAME) String username) {
+        cenxtTaskService.enableTask(id, false, username);
         return ResponseEntity.ok("");
     }
+
     @DeleteMapping("/admin/task/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable("id") int id){
+    public ResponseEntity<String> deleteTask(@PathVariable("id") int id) {
         cenxtTaskService.deleteTask(id);
         return ResponseEntity.ok("");
     }

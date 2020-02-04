@@ -3,7 +3,7 @@ package cn.cenxt.task.model;
 import java.util.Date;
 
 /**
- * 执行历史模型
+ * 执行记录模型
  */
 public class ExecHistory {
 
@@ -40,10 +40,15 @@ public class ExecHistory {
      */
     private int execResult;
     /**
+     * 重试次数
+     */
+    private int retryTimes;
+
+    private ExecReport execReport = new ExecReport();
+    /**
      * 错误信息
      */
-    private String errorMessage;
-
+    private String execMessage = "";
 
     public long getId() {
         return id;
@@ -101,6 +106,22 @@ public class ExecHistory {
         this.cost = cost;
     }
 
+    public int getRetryTimes() {
+        return retryTimes;
+    }
+
+    public void setRetryTimes(int retryTimes) {
+        this.retryTimes = retryTimes;
+    }
+
+    public ExecReport getExecReport() {
+        return execReport;
+    }
+
+    public void setExecReport(ExecReport execReport) {
+        this.execReport = execReport;
+    }
+
     public int getExecResult() {
         return execResult;
     }
@@ -109,11 +130,11 @@ public class ExecHistory {
         this.execResult = execResult;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getExecMessage() {
+        return execMessage;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setExecMessage(String execMessage) {
+        this.execMessage = execMessage;
     }
 }

@@ -1,6 +1,7 @@
 package cn.cenxt.task.mapper;
 
 import cn.cenxt.task.model.ExecHistory;
+import cn.cenxt.task.model.ExecReport;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -22,7 +23,9 @@ public class ExecHistoryMapper implements RowMapper<ExecHistory> {
         execHistory.setFinishTime(resultSet.getTimestamp("finish_time"));
         execHistory.setCost(resultSet.getDouble("cost"));
         execHistory.setExecResult(resultSet.getInt("exec_result"));
-        execHistory.setErrorMessage(resultSet.getString("error_message"));
+        execHistory.setRetryTimes(resultSet.getInt("retry_times"));
+        execHistory.setExecReport(new ExecReport(resultSet.getLong("success_count"), resultSet.getLong("fail_count")));
+        execHistory.setExecMessage(resultSet.getString("exec_message"));
         return execHistory;
     }
 }

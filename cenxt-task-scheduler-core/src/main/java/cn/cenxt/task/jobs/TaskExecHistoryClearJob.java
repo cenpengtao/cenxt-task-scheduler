@@ -1,5 +1,6 @@
 package cn.cenxt.task.jobs;
 
+import cn.cenxt.task.model.ExecReport;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.service.CenxtTaskService;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class TaskExecHistoryClearJob implements CenxtJob {
     private static final String PARAM_BEFORE_DAY = "beforeDay";
     private static final String SIZE = "size";
 
+    private static int i = 0;
     @Autowired
     private CenxtTaskService cenxtTaskService;
 
@@ -30,17 +32,24 @@ public class TaskExecHistoryClearJob implements CenxtJob {
      * @return
      */
     @Override
-    public boolean exec(Task task) throws Exception {
+    public boolean exec(Task task, final ExecReport execReport) throws Exception {
         logger.info(task.toString());
         int beforeDay = task.getParam(PARAM_BEFORE_DAY, Integer.class, 3);
         int size = task.getParam(SIZE, Integer.class, 100);
         Date nowTime = cenxtTaskService.getNowTime();
         Date date = new Date(nowTime.getTime() - beforeDay * 24 * 60 * 60 * 100);
-        int count = cenxtTaskService.deleteExecHistory(date,size);
-        Thread.sleep(1500);
+        int count = cenxtTaskService.deleteExecHistory(date, size);
+        for (int i = 0; i < 5; i++) {
+            Thread.sleep(1000);
+            execReport.incrSuccessCount(2);
+            execReport.incrFailCount(1);
+        }
         logger.info("delete success,count:{}", count);
-        return true;
+        i++;
+        if (i == 4) {
+            return true;
+        } else {
+            return false;
+        }
     }
-
-
 }

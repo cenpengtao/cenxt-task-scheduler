@@ -1,13 +1,14 @@
 package cn.cenxt.task.service;
 
 import cn.cenxt.task.constants.Constants;
+import cn.cenxt.task.enums.ExecResultEnum;
+import cn.cenxt.task.enums.TaskStatusEnum;
 import cn.cenxt.task.mapper.ExecHistoryMapper;
 import cn.cenxt.task.mapper.TaskRowMapper;
 import cn.cenxt.task.model.ExecHistory;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.utils.CronAnalysisUtil;
 import cn.cenxt.task.utils.IpUtil;
-import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -40,8 +41,10 @@ public class CenxtTaskService {
      */
     public void initTable() {
         logger.info("begin init table");
+        logger.info(Constants.SQL_CREATE_TASK_TABLE);
         //创建任务表
         jdbcTemplate.update(Constants.SQL_CREATE_TASK_TABLE);
+        logger.info(Constants.SQL_CREATE_EXEC_HISTORY_TABLE);
         //创建执行记录表
         jdbcTemplate.update(Constants.SQL_CREATE_EXEC_HISTORY_TABLE);
         logger.info("success init table");
@@ -73,15 +76,16 @@ public class CenxtTaskService {
     /**
      * 释放任务，将任务修改成待运行或者失败状态
      *
-     * @param task       任务
-     * @param execResult 执行结果
+     * @param task           任务
+     * @param taskStatusEnum 执行结果
      */
-    public void releaseTask(Task task, int execResult) {
-        int flag = 0;
-        if (execResult == 2) {
-            flag = 2;
+    public void releaseTask(Task task, TaskStatusEnum taskStatusEnum) {
+        try {
+            jdbcTemplate.update(Constants.SQL_RELEASE_TASK, taskStatusEnum.getStatus(), CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
+        } catch (Exception e) {
+            logger.error("releaseTask error", e);
         }
-        jdbcTemplate.update(Constants.SQL_RELEASE_TASK, flag, CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
+
     }
 
 
@@ -91,24 +95,49 @@ public class CenxtTaskService {
      * @param id 任务编号
      */
     public void failAndDisableTask(int id) {
-        jdbcTemplate.update(Constants.SQL_QUERY_RELEASE_TASK, id);
+        try {
+            jdbcTemplate.update(Constants.SQL_FAIL_AND_RELEASE_TASK, id);
+        } catch (Exception e) {
+            logger.error("failAndDisableTask error", e);
+        }
     }
 
 
     /**
      * 新增执行记录
      *
-     * @param taskId     任务编号
-     * @param execId     执行编号
-     * @param execTime   执行时间
+     * @param task       任务
      * @param finishTime 结束时间
      * @param execResult 执行结果
-     * @param errorMsg   错误信息
+     * @param message    执行信息
      */
-    public void insertExecHistory(int taskId, String execId, Date execTime, Date finishTime, int execResult, String errorMsg) {
-        jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
-                taskId, execId, IpUtil.getLocalIp(), execTime, finishTime, finishTime.getTime() - execTime.getTime(), execResult, errorMsg);
+    public void saveExecHistory(Task task, Date finishTime, ExecResultEnum execResult, String message) {
+        try {
+            long cost = finishTime == null ? 0 : (finishTime.getTime() - task.getExecTime().getTime());
+            jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
+                    task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                    cost, execResult.getResult(), 0, 0, 0, message);
+        } catch (Exception e) {
+            logger.error("insertExecHistory error", e);
+        }
+
     }
+
+    public void saveExecHistory(Task task, Date finishTime, ExecHistory execHistory) {
+        if (execHistory.getExecMessage().length() > 10000) {
+            execHistory.setExecMessage(execHistory.getExecMessage().substring(0, 10000));
+        }
+        try {
+            jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
+                    task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                    execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
+                    execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
+                    execHistory.getExecMessage());
+        } catch (Exception e) {
+            logger.error("insertExecHistory error", e);
+        }
+    }
+
 
     /**
      * 获取数据库当前时间
@@ -116,12 +145,17 @@ public class CenxtTaskService {
      * @return 当前时间
      */
     public Date getNowTime() {
-        return jdbcTemplate.queryForObject("SELECT NOW()", new RowMapper<Date>() {
-            @Override
-            public Date mapRow(ResultSet resultSet, int i) throws SQLException {
-                return resultSet.getTimestamp(1);
-            }
-        });
+        try {
+            return jdbcTemplate.queryForObject("SELECT NOW()", new RowMapper<Date>() {
+                @Override
+                public Date mapRow(ResultSet resultSet, int i) throws SQLException {
+                    return resultSet.getTimestamp(1);
+                }
+            });
+        } catch (Exception e) {
+            logger.error("getNowTime error", e);
+            return new Date();
+        }
     }
 
     public List<Task> getAllTasks() {
@@ -141,52 +175,69 @@ public class CenxtTaskService {
     }
 
     /**
+     * 获取错误的执行记录
+     *
+     * @param taskId 任务编号
+     * @param size   条数
+     * @return
+     */
+    public List<ExecHistory> getErrorExecHistory(int taskId, int size) {
+        Object[] params = {taskId, size};
+        return jdbcTemplate.query(Constants.SQL_QUERY_ERROR_EXEC_HISTORY_LIST, params, new ExecHistoryMapper());
+    }
+
+    /**
      * 删除执行记录
      *
      * @param date 什么时间之前
      * @param size 删除行数
      * @return 删除行数
      */
-    public int deleteExecHistory(Date date,int size) {
-        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date,size);
+    public int deleteExecHistory(Date date, int size) {
+        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date, size);
     }
 
     /**
      * 保存任务
-     * @param task 任务
+     *
+     * @param task     任务
      * @param username 用户名
      */
     public void saveTask(Task task, String username) {
-        if(task.getId()>0){
+        if (task.getId() > 0) {
             jdbcTemplate.update(Constants.SQL_UPDATE_TASK,
-                    task.getName(),task.getDescription(),
-                    task.getCronStr(),task.getExpire(),task.getRetryTimes(),
-                    task.getParams(),task.getNextTime(),
+                    task.getName(), task.getDescription(),
+                    task.getCronStr(), task.getExpire(), task.getRetryTimes(),
+                    task.getParams(), task.getNextTime(),
                     username,
                     task.getId());
-        }else {
+        } else {
             jdbcTemplate.update(Constants.SQL_INSERT_TASK,
-                    task.getName(),task.getDescription(),
-                    task.getCronStr(),task.getExpire(),task.getRetryTimes(),
-                    task.getParams(),task.getNextTime(),
+                    task.getName(), task.getDescription(),
+                    task.getCronStr(), task.getExpire(), task.getRetryTimes(),
+                    task.getParams(), task.getNextTime(),
                     username);
         }
     }
 
     /**
      * 修改任务启用状态
-     * @param id 任务编号
+     *
+     * @param id      任务编号
      * @param enabled 启用状态
      */
-    public void enableTask(int id,boolean enabled, String username){
-        jdbcTemplate.update(Constants.SQL_UPDATE_TASK_ENABLE,enabled?1:0,username,id);
+    public void enableTask(int id, boolean enabled, String username) {
+        jdbcTemplate.update(Constants.SQL_UPDATE_TASK_ENABLE, enabled ? 1 : 0, username, id);
     }
 
     /**
      * 删除任务
+     *
      * @param id 任务编号
      */
     public void deleteTask(int id) {
-        jdbcTemplate.update(Constants.SQL_DELETE_TASK,id);
+        jdbcTemplate.update(Constants.SQL_DELETE_TASK, id);
     }
+
+
 }

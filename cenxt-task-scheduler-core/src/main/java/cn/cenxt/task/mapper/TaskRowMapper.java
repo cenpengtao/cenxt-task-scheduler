@@ -1,14 +1,10 @@
 package cn.cenxt.task.mapper;
 
 import cn.cenxt.task.model.Task;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.util.StringUtils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * 任务映射
@@ -34,17 +30,7 @@ public class TaskRowMapper implements RowMapper<Task> {
         task.setUpdateTime(resultSet.getTimestamp("update_time"));
         task.setCreator(resultSet.getString("creator"));
         task.setUpdator(resultSet.getString("updator"));
-        String emailStr = resultSet.getString("emails");
-        if (!StringUtils.isEmpty(emailStr)) {
-            task.setEmails(Arrays.asList(emailStr.split(";")));
-        }
-        String mobilesStr = resultSet.getString("mobiles");
-        if (!StringUtils.isEmpty(mobilesStr)) {
-            task.setMobiles(Arrays.asList(mobilesStr.split(";")));
-        }
-
         task.setParams(resultSet.getString("params"));
-
         return task;
     }
 }

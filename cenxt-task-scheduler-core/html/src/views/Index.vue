@@ -16,13 +16,17 @@
             <span>执行记录（最近{{execHistorySize}}条）</span>
         </p>
         <Row>
-            <Col span="8">
+            <Col span="6">
             <span>名称：</span>
             <span>{{ execHistoryTask.name }}</span>
             </Col>
-            <Col span="16">
+            <Col span="12">
             <span>描述：</span>
             <span>{{ execHistoryTask.description }}</span>
+            </Col>
+            <Col span="6">
+                <Checkbox v-model="exceptionHistory" @on-change="getExecHistory">异常记录</Checkbox>
+                <Button type="success" icon="md-refresh" @click="getExecHistory">刷新</Button>
             </Col>
         </Row>
         <Table :columns="execHistorycolumns" :data="execHistory" size="small" highlight-row border stripe></Table>
@@ -47,6 +51,7 @@ export default {
             tasks: [],
             role: "GUEST",
             loading: false,
+            exceptionHistory:false,
             execHistory: [],
             execHistoryTask: {},
             execHistorySize: 18,
@@ -241,7 +246,8 @@ export default {
                                 },
                                 on: {
                                     click: () => {
-                                        this.getExecHistory(params.row)
+                                        this.execHistoryTask=params.row
+                                        this.getExecHistory()
                                     }
                                 }
                             }, "执行记录"
@@ -268,13 +274,28 @@ export default {
                     width: 120,
                     render: (h, params) => {
                         var color = 'red'
-                        var label = '失败'
+                        var label = params.row.execResult
                         if (params.row.execResult == 0) {
-                            color = 'green'
-                            label = '成功'
+                            color = 'blue'
+                            label = '待执行'
                         } else if (params.row.execResult == 1) {
                             color = 'orange'
-                            label = '重试后成功'
+                            label = '执行中'
+                        } else if (params.row.execResult == 2) {
+                            color = 'green'
+                            label = '成功'
+                        } else if (params.row.execResult == 3) {
+                            color = 'black'
+                            label = '重试中'
+                        } else if (params.row.execResult == 4) {
+                            color = 'green'
+                            label = '重试成功'
+                        } else if (params.row.execResult == 5) {
+                            color = 'red'
+                            label = '执行失败'
+                        } else if (params.row.execResult == 6) {
+                            color = 'red'
+                            label = '超时中断'
                         }
                         return h("span", {
                             style: {
@@ -298,6 +319,28 @@ export default {
                         var min = Math.floor((params.row.cost / 1000 / 60) << 0)
                         var sec = Math.floor((params.row.cost / 1000) % 60)
                         return h("span", min + "分" + sec + "秒");
+                 f   }
+                },
+                {
+                    title: '重试次数',
+                    key: 'retryTimes',
+                    width: 100,
+                    tooltip: true
+                },
+                {
+                    title: '成功记录数',
+                    width: 120,
+                    tooltip: true,
+                    render: (h, params) => {
+                        return h("span", params.row.execReport.successCount);
+                    }
+                },
+                {
+                    title: '失败记录数',
+                    width: 120,
+                    tooltip: true,
+                    render: (h, params) => {
+                        return h("span", params.row.execReport.failCount);
                     }
                 },
                 {
@@ -393,11 +436,14 @@ export default {
                 this.loading = false
             });
         },
-        getExecHistory: function (task) {
+        getExecHistory: function () {
             this.$Spin.show();
-            this.execHistory = [];
-            this.execHistoryTask = task;
-            http.get("/api/exec-history/" + task.id + "/" + this.execHistorySize, data => {
+            this.execHistory = []
+            var url="/api/exec-history/"
+            if(this.exceptionHistory){
+                url="/api/exec-history/error/"
+            }
+            http.get( url+ this.execHistoryTask.id + "/" + this.execHistorySize, data => {
                 this.execHistory = data;
                 this.execHistoryModal = true;
                 this.$Spin.hide();

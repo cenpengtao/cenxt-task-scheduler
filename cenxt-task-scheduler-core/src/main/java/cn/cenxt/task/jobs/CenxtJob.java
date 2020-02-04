@@ -1,5 +1,6 @@
 package cn.cenxt.task.jobs;
 
+import cn.cenxt.task.model.ExecReport;
 import cn.cenxt.task.model.Task;
 
 /**
@@ -20,9 +21,10 @@ public interface CenxtJob {
     /**
      * 开始执行任务
      *
-     * @param task 任务
+     * @param task       任务
+     * @param execReport 执行状态
      * @return 执行结果
      */
-    boolean exec(Task task) throws Exception;
+    boolean exec(final Task task, final ExecReport execReport) throws Exception;
 
 }

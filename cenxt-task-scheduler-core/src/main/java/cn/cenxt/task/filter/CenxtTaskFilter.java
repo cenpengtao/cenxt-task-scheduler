@@ -2,7 +2,6 @@ package cn.cenxt.task.filter;
 
 import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.enums.RoleEnum;
-import cn.cenxt.task.properties.CenxtTaskProperties;
 import cn.cenxt.task.service.CenxtSecurityService;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.AntPathMatcher;
@@ -60,7 +59,7 @@ public class CenxtTaskFilter implements Filter {
             response.getWriter().flush();
             return;
         }
-        if (pathMatcher.match(request.getContextPath() + "/cenxt-task-view/api/admin/**",url)) {
+        if (pathMatcher.match(request.getContextPath() + "/cenxt-task-view/api/admin/**", url)) {
 
             if (role.getRole() < 1) {
                 //标记为无权限
