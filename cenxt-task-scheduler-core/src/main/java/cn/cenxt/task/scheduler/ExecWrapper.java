@@ -11,6 +11,7 @@ import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Date;
 import java.util.concurrent.FutureTask;
 
 /**
@@ -84,7 +85,12 @@ public class ExecWrapper implements Runnable {
                     return;
                 }
             }
-            cenxtTaskService.saveExecHistory(task, null, execHistory);
+            Date finishTime=null;
+            if(execHistory.getExecResult() == ExecResultEnum.SUCCESS.getResult()
+                    || execHistory.getExecResult() == ExecResultEnum.RETRY_SUCCESS.getResult()){
+                finishTime=cenxtTaskService.getNowTime();
+            }
+            cenxtTaskService.saveExecHistory(task, finishTime, execHistory);
             try {
                 Thread.sleep(3000);
             } catch (Exception ignored) {
@@ -92,10 +98,10 @@ public class ExecWrapper implements Runnable {
         }
         try {
             execHistory = futureTask.get();
-            cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
         } catch (Exception e) {
             logger.error("futureTask get error", e);
         }
+        cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
         if (execHistory.getExecResult() == ExecResultEnum.SUCCESS.getResult()
                 || execHistory.getExecResult() == ExecResultEnum.RETRY_SUCCESS.getResult()) {
             //释放任务

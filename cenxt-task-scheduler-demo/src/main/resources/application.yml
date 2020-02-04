@@ -5,9 +5,9 @@ spring:
   datasource:
     name: main-datasources
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: cen
-    password: Hcxin@2018
-    url: jdbc:mysql://119.29.120.234/task?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: task
+    password: task@2020
+    url: jdbc:mysql://cenxt.cn/task?useUnicode=true&characterEncoding=utf-8&useSSL=false
     type: com.alibaba.druid.pool.DruidDataSource   #这里是配置druid连接池，以下都是druid的配置信息
     druid:
       filters: stat,wall,slf4j
@@ -32,3 +32,8 @@ logging:
 server:
   servlet:
     context-path:
+
+cenxt:
+  task:
+    view:
+      needLogin: false

@@ -33,17 +33,10 @@ public class CenxtTaskViewConfiguration {
 
     @Bean
     @Order
-    @ConditionalOnProperty(
-            name = {"cenxt.task.view.needLogin"},
-            havingValue = "true",
-            matchIfMissing = true
-    )
     public FilterRegistrationBean<CenxtTaskFilter> cenxtTaskFilter(CenxtSecurityService cenxtSecurityService) {
         FilterRegistrationBean<CenxtTaskFilter> filterRegistrationBean
                 = new FilterRegistrationBean<>(new CenxtTaskFilter(cenxtSecurityService));
         filterRegistrationBean.addUrlPatterns("/cenxt-task-view/*");
         return filterRegistrationBean;
     }
-
-
 }

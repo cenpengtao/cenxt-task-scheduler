@@ -97,11 +97,6 @@ public class CenxtTaskProperties {
         private boolean enabled;
 
         /**
-         * 是否需要登录
-         */
-        private boolean needLogin;
-
-        /**
          * 管理员用户名
          */
         private String adminUsername = "admin";
@@ -130,14 +125,6 @@ public class CenxtTaskProperties {
 
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
-        }
-
-        public boolean isNeedLogin() {
-            return needLogin;
-        }
-
-        public void setNeedLogin(boolean needLogin) {
-            this.needLogin = needLogin;
         }
 
         public String getAdminUsername() {

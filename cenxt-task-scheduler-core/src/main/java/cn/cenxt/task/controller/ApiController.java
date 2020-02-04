@@ -1,12 +1,10 @@
 package cn.cenxt.task.controller;
 
+import cn.cenxt.task.annotations.TaskInfo;
 import cn.cenxt.task.constants.Constants;
 import cn.cenxt.task.enums.RoleEnum;
 import cn.cenxt.task.jobs.CenxtJob;
-import cn.cenxt.task.model.CronExplain;
-import cn.cenxt.task.model.ExecHistory;
-import cn.cenxt.task.model.Login;
-import cn.cenxt.task.model.Task;
+import cn.cenxt.task.model.*;
 import cn.cenxt.task.properties.CenxtTaskProperties;
 import cn.cenxt.task.service.CenxtSecurityService;
 import cn.cenxt.task.service.CenxtTaskService;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -100,8 +99,24 @@ public class ApiController {
      * 获取所有任务列表
      */
     @GetMapping("/jobs")
-    public ResponseEntity<String[]> jobs() {
-        return ResponseEntity.ok(applicationContext.getBeanNamesForType(CenxtJob.class));
+    public ResponseEntity<List<TaskDescription>> jobs() {
+        String[] names = applicationContext.getBeanNamesForType(CenxtJob.class);
+        List<TaskDescription> list=new ArrayList<>();
+        for (String name:names){
+            TaskDescription description=new TaskDescription();
+            description.setName(name);
+            Class<?> aClass = applicationContext.getBean(name).getClass();
+            TaskInfo taskInfo = aClass.getDeclaredAnnotation(TaskInfo.class);
+            if(taskInfo!=null){
+                description.setDescription(taskInfo.description());
+                description.setParamsDescription(taskInfo.paramsDescription());
+                description.setCron(taskInfo.cron());
+                description.setExpire(taskInfo.expire());
+                description.setRetryTimes(taskInfo.retryTimes());
+            }
+            list.add(description);
+        }
+        return ResponseEntity.ok(list);
     }
 
     /**

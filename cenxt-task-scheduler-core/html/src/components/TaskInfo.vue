@@ -9,8 +9,8 @@
         <Row>
             <Col span="10">
             <FormItem label="名称" prop="name">
-                <Select v-model="taskInfo.name" placeholder="名称" clearable>
-                    <Option v-for="item in jobs" :value="item" :key="item">{{ item }}</Option>
+                <Select v-model="taskInfo.name" placeholder="名称" clearable @on-change="jobChange">
+                    <Option v-for="item in jobs" :value="item.name" :key="item.name">{{ item.name }}</Option>
                 </Select>
             </FormItem>
             </Col>
@@ -81,6 +81,7 @@ export default {
             taskInfo: {},
             jobs: [],
             explainSize: 5,
+            readyConfirm:false,
             cronExplain: [],
             taskInfoRules: {
                 name: [{
@@ -193,6 +194,20 @@ export default {
                 this.jobs = data;
             });
         },
+        jobChange:function(name){
+            var job={}
+            this.jobs.forEach(element => {
+                if(element.name==name){
+                    job=element
+                    return
+                }
+            });
+            this.taskInfo.description=job.description
+            this.taskInfo.params=job.paramsDescription;
+            this.taskInfo.cronStr=job.cron;
+            this.taskInfo.expire=job.expire;
+            this.taskInfo.retryTimes=job.retryTimes;
+        },
         getCronExplain: function (str, callback) {
             http.post("/api/cron-explain", {
                     cronStr: str,
@@ -200,7 +215,7 @@ export default {
                 },
                 data => {
                     this.cronExplain = data
-                    if(data.length>0){
+                    if(data.length>0&&!this.readyConfirm){
                         this.taskInfo.nextTime= new Date(util.formatDate(data[0]))
                     }
                     callback && callback(data.length > 0)
@@ -210,7 +225,9 @@ export default {
         },
         onConfirm: function () {
             const that = this;
+            that.readyConfirm=true
             that.$refs.taskInfoValidate.validate(valid => {
+                that.readyConfirm=false
                 if(!valid){
                     return
                 }

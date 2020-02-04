@@ -49,7 +49,7 @@ export default {
     data() {
         return {
             tasks: [],
-            role: "GUEST",
+            role: "ADMIN",
             loading: false,
             exceptionHistory:false,
             execHistory: [],
@@ -373,7 +373,11 @@ export default {
     },
     mounted: function () {
         this.getTasks()
-        this.role = window.sessionStorage.getItem("ROLE")
+         var role= window.sessionStorage.getItem("ROLE")
+         if(!!!role){
+            role="ADMIN"
+         }
+         this.role=role
     },
     methods: {
         onAddTask: function () {

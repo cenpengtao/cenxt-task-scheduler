@@ -112,7 +112,6 @@ public class ExecCallable implements Callable<ExecHistory> {
                 continue;
             }
             if (result) {
-                //成功跳出循环
                 if (execHistory.getRetryTimes() > 0) {
                     execHistory.setExecResult(ExecResultEnum.RETRY_SUCCESS.getResult());
                 } else {
