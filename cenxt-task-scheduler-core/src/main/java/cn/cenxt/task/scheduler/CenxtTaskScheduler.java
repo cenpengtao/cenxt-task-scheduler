@@ -74,13 +74,14 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                     }
                     //开始扫描任务
                     try {
-                        fetchSize[0] = Math.min(fetchSize[0], (executor.getCorePoolSize() - executor.getActiveCount()));
-                        logger.debug("now available pool size:{}", fetchSize[0]);
-                        if (fetchSize[0] < 1) {
+                        int size = Math.min(fetchSize[0], (executor.getCorePoolSize() - executor.getActiveCount()));
+                        logger.debug("now available pool size:{}", size);
+                        printPool(executor);
+                        if (size < 1) {
                             continue;
                         }
                         //获取待执行任务列表
-                        List<Task> waitExecTask = cenxtTaskService.getWaitExecTask(fetchSize[0]);
+                        List<Task> waitExecTask = cenxtTaskService.getWaitExecTask(size);
                         logger.debug("get tasks size:{}", waitExecTask.size());
                         for (Task task : waitExecTask) {
 
@@ -131,5 +132,13 @@ public class CenxtTaskScheduler implements ApplicationListener<ApplicationReadyE
                 }
             }
         }.start();
+    }
+
+    private void printPool(ThreadPoolExecutor executor){
+        logger.debug(" ActiveCount: {} poolSize:{} queueSize:{} taskCount:{}"
+                ,executor.getActiveCount(),
+                executor.getPoolSize(),
+                executor.getQueue().size(),
+                executor.getTaskCount());
     }
 }

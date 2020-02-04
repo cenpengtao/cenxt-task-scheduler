@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 执行包装类
@@ -79,25 +80,20 @@ public class ExecWrapper implements Runnable {
                     }
                     execHistory.setExecResult(ExecResultEnum.INTERRUPTED.getResult());
                     execHistory.setExecMessage(execHistory.getExecMessage() + "【错误】在" + cost + "毫秒之后,任务被中断");
-                    cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
-                    //释放任务
-                    cenxtTaskService.releaseTask(task, TaskStatusEnum.FAIL);
-                    return;
                 }
             }
-            Date finishTime=null;
-            if(execHistory.getExecResult() == ExecResultEnum.SUCCESS.getResult()
-                    || execHistory.getExecResult() == ExecResultEnum.RETRY_SUCCESS.getResult()){
-                finishTime=cenxtTaskService.getNowTime();
+            if(execHistory.getExecResult() != ExecResultEnum.RUNNING.getResult()
+                    && execHistory.getExecResult() != ExecResultEnum.RETRYING.getResult()){
+                break;
             }
-            cenxtTaskService.saveExecHistory(task, finishTime, execHistory);
+            cenxtTaskService.saveExecHistory(task, null, execHistory);
             try {
                 Thread.sleep(3000);
             } catch (Exception ignored) {
             }
         }
         try {
-            execHistory = futureTask.get();
+            execHistory = futureTask.get(1, TimeUnit.SECONDS);
         } catch (Exception e) {
             logger.error("futureTask get error", e);
         }
