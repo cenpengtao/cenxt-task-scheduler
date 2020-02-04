@@ -31,9 +31,4 @@ logging:
       cenxt: DEBUG
 server:
   servlet:
-    context-path:
-
-cenxt:
-  task:
-    view:
-      needLogin: false
+    context-path: /task-demo

@@ -19,6 +19,10 @@ public class TestJob implements CenxtJob {
      */
     @Override
     public boolean exec(Task task, ExecReport execReport) throws Exception {
+
+        //任务业务代码
+
+        //任务数据采集（可选）
         execReport.incrSuccessCount(1);
         execReport.incrFailCount(1);
         return true;

@@ -1,0 +1,4 @@
+spring:
+  datasource:
+    url: jdbc:mysql://172.17.0.1/config?useUnicode=true&characterEncoding=utf-8&useSSL=false
+
