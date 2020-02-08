@@ -83,7 +83,7 @@ cenxt.task.view.guestPassword=guest
 #（可选）单个IP最大登录尝试次数，缺省5
 cenxt.task.view.maxTryCount=3000
 ```
-配置中心地址：http://config.cenxt.cn/config-center-view/
+配置中心地址：http://config.cenxt.cn/
 账号：demo/123456
 #### 2、数据统计
 在执行批处理任务过程中，设置如下代码，会将执行进度上传到服务端，可以在执行记录看到实时数据变化
