@@ -5,7 +5,7 @@
 - 支持任务重试
 - 支持任务异常重跑
 - 支持UI界面控制
-## 快速使用
+## 一、快速使用
 #### 1、引入依赖
 ```
 <dependency>
@@ -56,7 +56,7 @@ demo地址:http://cenxt.cn/task-demo/cenxt-task-view/index.html
 
 默认账户：admin/admin、guest/guest
 
-## 进阶
+## 二、进阶
 #### 1、参数配置
 ```
 #（可选）是否启用配置,缺省为true
@@ -182,5 +182,112 @@ public interface CenxtSecurityService {
      */
     RoleEnum getRole(HttpServletRequest request);
 }
-
 ```
+## 三、设计说明
+#### 1、业务流程
+启动任务扫描线程->查询可执行任务列表->锁定任务->添加执行记录->执行任务->计算下次执行时间，并释放任务
+#### 2、数据表设计（程序启动，如有权限会自动创建）
+##### （1）任务表
+````
+CREATE TABLE `cenxt_task` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT COMMENT '编号',
+	`name` VARCHAR(100) NOT NULL COMMENT '任务名称',
+	`description` VARCHAR(256) NOT NULL COMMENT '描述',
+	`enabled` TINYINT(1) NOT NULL DEFAULT '0' COMMENT '启用状态',
+	`flag` TINYINT(2) NOT NULL DEFAULT '0' COMMENT '执行状态：0待执行 1执行中 2执行失败',
+	`cron_str` VARCHAR(256) NOT NULL COMMENT '时间表达式',
+	`expire` INT(11) NOT NULL COMMENT '超时时间，单位分钟，0为不超时',
+	`retry_times` INT(11) NOT NULL COMMENT '重试次数',
+	`params` VARCHAR(4096) NOT NULL DEFAULT '' COMMENT '参数',
+	`exec_time` TIMESTAMP NULL DEFAULT NULL COMMENT '执行时间',
+	`exec_ip` VARCHAR(50) NULL DEFAULT NULL COMMENT '执行机器IP',
+	`next_time` TIMESTAMP NOT NULL COMMENT '下次执行时间',
+	`create_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+	`update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+	`creator` VARCHAR(50) NOT NULL COMMENT '创建人',
+	`updator` VARCHAR(50) NULL DEFAULT NULL COMMENT '更新人',
+	PRIMARY KEY (`id`),
+	INDEX `name` (`name`),
+	INDEX `create_time` (`create_time`),
+	INDEX `update_time` (`update_time`),
+	INDEX `exec_time` (`exec_time`),
+	INDEX `next_time` (`next_time`),
+	INDEX `expire` (`expire`),
+	INDEX `exec_ip` (`exec_ip`)
+)
+COMMENT='任务表'
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1;
+````
+##### （2）执行记录表
+````
+CREATE TABLE `cenxt_exec_history` (
+	`id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '编号',
+	`task_id` BIGINT(20) NOT NULL COMMENT '任务编号',
+	`exec_id` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '执行编号',
+	`exec_ip` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '执行机器IP',
+	`exec_time` TIMESTAMP NOT NULL COMMENT '执行时间',
+	`finish_time` TIMESTAMP NULL DEFAULT NULL COMMENT '结束时间',
+	`cost` DOUBLE NOT NULL DEFAULT '0' COMMENT '执行耗时，单位ms',
+	`exec_result` TINYINT(2) NOT NULL COMMENT '执行结果：0待执行 1执行中 2执行成功 3重试中 4重试成功 5执行失败 6超时中断 ',
+	`retry_times` INT(11) NULL DEFAULT '0' COMMENT '重试次数',
+	`success_count` BIGINT(20) NULL DEFAULT '0' COMMENT '成功记录数',
+	`fail_count` BIGINT(20) NULL DEFAULT '0' COMMENT '失败记录数',
+	`exec_message` VARCHAR(10240) NULL DEFAULT '' COMMENT '执行信息',
+	PRIMARY KEY (`id`),
+	UNIQUE INDEX `exec_id` (`exec_id`),
+	INDEX `exec_time` (`exec_time`),
+	INDEX `finish_time` (`finish_time`),
+	INDEX `task_id` (`task_id`),
+	INDEX `cost` (`cost`),
+	INDEX `exec_ip` (`exec_ip`),
+	INDEX `exec_result` (`exec_result`)
+)
+COMMENT='执行记录表'
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+AUTO_INCREMENT=1;
+````
+#### 3、查询可执行任务列表
+````
+SELECT * FROM cenxt_task WHERE 
+##任务是启用状态
+enabled=1 
+AND (
+	##任务待执行且下次执行时间小于当前时间
+	(flag=0 AND next_time<NOW()) 
+	##任务为执行中，且任务已超时执行
+	OR (flag=1 AND exec_time<DATE_SUB(NOW(),interval `expire`+1 MINUTE))
+	OR (
+		##执行失败
+		flag=2 
+		AND (
+			##如果上次执行机器为当前机器，执行时间延后1分钟
+			(exec_ip=? AND next_time<DATE_SUB(NOW(),interval 1 MINUTE))
+			##如果上次执行机器不是当前，到时间自动执行
+			OR (exec_ip<>? AND next_time<NOW())
+		)
+	)
+) LIMIT ?
+````
+#### 4、锁定任务
+````
+##设置执行状态为执行中，更新执行时间和机器IP
+UPDATE cenxt_task SET flag=1,exec_time=NOW(),exec_ip=? WHERE 
+##任务编号
+id=? 
+##是否启用
+AND enabled=1 
+##执行时间和查询的结果一致，或者执行时间为空（任务新创建执行时间为空）
+AND (exec_time=? OR exec_time IS NULL)
+````
+#### 5、释放任务
+````
+##更新执行状态和下次执行时间
+UPDATE cenxt_task SET flag=?,next_time=? WHERE 
+##任务编号
+id=? 
+##任务状态为执行中
+AND flag=1
+````
