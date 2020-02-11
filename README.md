@@ -66,7 +66,7 @@ cenxt.task.scanInterval=3000
 #（可选）任务执行线程数,缺省3，最小3
 cenxt.task.thread=3
 #（可选）每次获取待执行任务条数,缺省3，最小3，同时不能大于任务执行线程数
-cenxt.task.fetchSize=3000
+cenxt.task.fetchSize=3
 #（可选）初始化任务表，如果启用，不存在任务表将自动创建，缺省true
 cenxt.task.initTable=true
 
