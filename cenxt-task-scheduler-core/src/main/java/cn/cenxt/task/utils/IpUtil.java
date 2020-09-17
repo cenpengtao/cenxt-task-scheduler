@@ -54,10 +54,10 @@ public class IpUtil {
                     InetAddress inet = null;
                     try {
                         inet = InetAddress.getLocalHost();
+                        ipAddress = inet.getHostAddress();
                     } catch (UnknownHostException e) {
                         e.printStackTrace();
                     }
-                    ipAddress = inet.getHostAddress();
                 }
             }
             // 对于通过多个代理的情况，第一个IP为客户端真实IP,多个IP按照','分割

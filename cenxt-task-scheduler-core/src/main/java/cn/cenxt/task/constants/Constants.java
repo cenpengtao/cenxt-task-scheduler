@@ -57,7 +57,7 @@ public class Constants {
             "  `params` varchar(4096) NOT NULL DEFAULT '' COMMENT '参数',\n" +
             "  `exec_time` timestamp NULL DEFAULT NULL COMMENT '执行时间',\n" +
             "  `exec_ip` varchar(50) DEFAULT NULL COMMENT '执行机器IP',\n" +
-            "  `next_time` timestamp NOT NULL COMMENT '下次执行时间',\n" +
+            "  `next_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '下次执行时间',\n" +
             "  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',\n" +
             "  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',\n" +
             "  `creator` varchar(50) NOT NULL COMMENT '创建人',\n" +
@@ -137,7 +137,13 @@ public class Constants {
     /**
      * 新增执行记录
      */
-    public static final String SQL_INSERT_EXEC_HISTORY = "REPLACE INTO " + TABLE_NAME_EXEC_HISTORY + " (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `retry_times`, `success_count`, `fail_count`, `exec_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public static final String SQL_INSERT_EXEC_HISTORY = "INSERT INTO " + TABLE_NAME_EXEC_HISTORY + " (`task_id`, `exec_id`, `exec_ip`, `exec_time`, `finish_time`, `cost`, `exec_result`, `retry_times`, `success_count`, `fail_count`, `exec_message`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+    /**
+     * 更新执行记录
+     */
+    public static final String SQL_UPDATE_EXEC_HISTORY = "UPDATE " + TABLE_NAME_EXEC_HISTORY + " SET finish_time=?, cost=?, exec_result=?, retry_times=?, success_count=?, fail_count=?, exec_message=? WHERE exec_id=?";
+
     /**
      * 新增任务
      */
@@ -159,6 +165,12 @@ public class Constants {
      * 获取所有任务
      */
     public static final String SQL_QUERY_ALL_TASK_LIST = "SELECT * FROM " + TABLE_NAME_TASK + " order by update_time desc";
+
+    /**
+     * 通过exec_id获取最近执行记录
+     */
+    public static final String SQL_QUERY_EXEC_HISTORY_BY_EXEC_ID = "SELECT * FROM " + TABLE_NAME_EXEC_HISTORY + " WHERE exec_id = ?";
+
     /**
      * 获取最近n条执行记录
      */

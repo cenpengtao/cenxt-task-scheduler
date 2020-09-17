@@ -21,7 +21,7 @@ public class ExecHistoryMapper implements RowMapper<ExecHistory> {
         execHistory.setExecIp(resultSet.getString("exec_ip"));
         execHistory.setExecTime(resultSet.getTimestamp("exec_time"));
         execHistory.setFinishTime(resultSet.getTimestamp("finish_time"));
-        execHistory.setCost(resultSet.getDouble("cost"));
+        execHistory.setCost(resultSet.getLong("cost"));
         execHistory.setExecResult(resultSet.getInt("exec_result"));
         execHistory.setRetryTimes(resultSet.getInt("retry_times"));
         execHistory.setExecReport(new ExecReport(resultSet.getLong("success_count"), resultSet.getLong("fail_count")));

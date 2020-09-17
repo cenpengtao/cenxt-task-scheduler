@@ -34,7 +34,7 @@ public class ExecHistory {
     /**
      * 耗时
      */
-    private double cost;
+    private long cost;
     /**
      * 执行结果
      */
@@ -98,11 +98,11 @@ public class ExecHistory {
         this.finishTime = finishTime;
     }
 
-    public double getCost() {
+    public long getCost() {
         return cost;
     }
 
-    public void setCost(double cost) {
+    public void setCost(long cost) {
         this.cost = cost;
     }
 
