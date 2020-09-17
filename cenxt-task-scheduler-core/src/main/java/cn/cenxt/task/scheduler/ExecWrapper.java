@@ -88,7 +88,7 @@ public class ExecWrapper implements Runnable {
             }
             cenxtTaskService.saveExecHistory(task, null, execHistory);
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (Exception ignored) {
             }
         }

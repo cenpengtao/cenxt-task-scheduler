@@ -55,7 +55,7 @@ public class CenxtTaskService {
         logger.info("success init table");
     }
 
-    public boolean checkTableExist(String tableName){
+    private boolean checkTableExist(String tableName){
         try{
             jdbcTemplate.update("SHOW CREATE TABLE "+tableName);
             return true;
@@ -128,11 +128,16 @@ public class CenxtTaskService {
     public void saveExecHistory(Task task, Date finishTime, ExecResultEnum execResult, String message) {
         try {
             long cost = finishTime == null ? 0 : (finishTime.getTime() - task.getExecTime().getTime());
-            jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
-                    task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
-                    cost, execResult.getResult(), 0, 0, 0, message);
+            final ExecHistory execHistory = this.getExecHistory(task.getExecId());
+            if (execHistory == null) {
+                jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
+                        task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                        cost, execResult.getResult(), 0, 0, 0, message);
+            } else {
+                jdbcTemplate.update(Constants.SQL_UPDATE_EXEC_HISTORY, finishTime, cost, execResult.getResult(), 0, 0, 0, message);
+            }
         } catch (Exception e) {
-            logger.error("insertExecHistory error", e);
+            logger.error("saveExecHistory error", e);
         }
 
     }
@@ -147,8 +152,22 @@ public class CenxtTaskService {
                     execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
                     execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
                     execHistory.getExecMessage());
+
+            final ExecHistory history = this.getExecHistory(task.getExecId());
+            if (history == null) {
+                jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
+                        task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                        execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
+                        execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
+                        execHistory.getExecMessage());
+            } else {
+                jdbcTemplate.update(Constants.SQL_UPDATE_EXEC_HISTORY,
+                        finishTime, execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
+                        execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
+                        execHistory.getExecMessage(), execHistory.getExecId());
+            }
         } catch (Exception e) {
-            logger.error("insertExecHistory error", e);
+            logger.error("saveExecHistory error", e);
         }
     }
 
@@ -186,6 +205,20 @@ public class CenxtTaskService {
     public List<ExecHistory> getExecHistory(int taskId, int size) {
         Object[] params = {taskId, size};
         return jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_LIST, params, new ExecHistoryMapper());
+    }
+
+    /**
+     * 获取执行记录
+     * @param execId 执行编号
+     * @return
+     */
+    public ExecHistory getExecHistory(String execId) {
+        Object[] params = {execId};
+        final List<ExecHistory> list = jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_BY_EXEC_ID, params, new ExecHistoryMapper());
+        if (list == null || list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
     }
 
     /**
