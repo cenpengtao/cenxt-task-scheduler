@@ -52,7 +52,7 @@ public class TestJob implements CenxtJob {
 #### 4、启动服务，打开控制页面，维护任务
 http://localhost:8080/{应用上下文(可选)}/cenxt-task-view/index.html
 
-demo地址:http://cenxt.cn/task-demo/cenxt-task-view/index.html
+demo地址:http://task.cenxt.cn/task-demo/cenxt-task-view/index.html
 
 默认账户：admin/admin、guest/guest
 
