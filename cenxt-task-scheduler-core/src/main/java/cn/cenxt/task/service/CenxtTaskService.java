@@ -40,24 +40,28 @@ public class CenxtTaskService {
      * 初始化数据表
      */
     public void initTable() {
-        logger.info("begin init table");
-        logger.info(Constants.SQL_CREATE_TASK_TABLE());
+
         if (!checkTableExist(Constants.TABLE_NAME_TASK)) {
+            logger.info("begin init table");
+            logger.info(Constants.SQL_CREATE_TASK_TABLE());
             //创建任务表
             jdbcTemplate.update(Constants.SQL_CREATE_TASK_TABLE());
+            logger.info("success init table");
         }
-
-        logger.info(Constants.SQL_CREATE_EXEC_HISTORY_TABLE());
         if (!checkTableExist(Constants.TABLE_NAME_EXEC_HISTORY)) {
+            logger.info("begin init table");
+            logger.info(Constants.SQL_CREATE_EXEC_HISTORY_TABLE());
             //创建记录表
             jdbcTemplate.update(Constants.SQL_CREATE_EXEC_HISTORY_TABLE());
+            logger.info("success init table");
         }
-        logger.info("success init table");
+
     }
 
     public boolean checkTableExist(String tableName) {
         try {
             jdbcTemplate.update("SHOW CREATE TABLE " + tableName);
+            logger.info("table "+tableName +" is exist");
             return true;
         } catch (Exception e) {
             return false;

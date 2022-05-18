@@ -33,9 +33,9 @@ public class CenxtTaskViewConfiguration {
 
     @Bean
     @Order
-    public FilterRegistrationBean<CenxtTaskFilter> cenxtTaskFilter(CenxtSecurityService cenxtSecurityService) {
-        FilterRegistrationBean<CenxtTaskFilter> filterRegistrationBean
-                = new FilterRegistrationBean<>(new CenxtTaskFilter(cenxtSecurityService));
+    public FilterRegistrationBean cenxtTaskFilter(CenxtSecurityService cenxtSecurityService) {
+        FilterRegistrationBean filterRegistrationBean
+                = new FilterRegistrationBean(new CenxtTaskFilter(cenxtSecurityService));
         filterRegistrationBean.addUrlPatterns("/cenxt-task-view/*");
         return filterRegistrationBean;
     }

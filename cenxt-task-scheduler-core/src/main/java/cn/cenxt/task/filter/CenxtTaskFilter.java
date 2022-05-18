@@ -25,6 +25,11 @@ public class CenxtTaskFilter implements Filter {
     }
 
     @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+
+    }
+
+    @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
 
@@ -72,5 +77,10 @@ public class CenxtTaskFilter implements Filter {
         request.getSession().setAttribute(Constants.SESSION_USERNAME, userName);
         request.getSession().setAttribute(Constants.SESSION_ROLE, role);
         filterChain.doFilter(servletRequest, servletResponse);
+    }
+
+    @Override
+    public void destroy() {
+
     }
 }
