@@ -4,7 +4,7 @@
 <template>
 <div>
     <div style="width:100%;height:40px">
-        <Button v-if="role=='ADMIN'" type="success" icon="md-add" style="float:left" @click="onAddTask">新增任务</Button>
+        <Button v-if="role!='GUEST'" type="success" icon="md-add" style="float:left" @click="onAddTask">新增任务</Button>
         <Button type="success" icon="md-refresh" style="float:right" @click="getTasks">刷新</Button>
     </div>
     <Table :loading="loading" :columns="columns" :data="tasks" size="small" highlight-row border stripe></Table>
@@ -49,7 +49,7 @@ export default {
     data() {
         return {
             tasks: [],
-            role: "ADMIN",
+            role: "GUEST",
             loading: false,
             exceptionHistory:false,
             execHistory: [],
@@ -81,7 +81,7 @@ export default {
                 {
                     title: '执行状态',
                     key: 'flag',
-                    width: 100,
+                    width: 120,
                     render: (h, params) => {
                         var color = 'green'
                         var label = '待执行'
@@ -91,6 +91,10 @@ export default {
                         } else if (params.row.flag == 2) {
                             color = 'red'
                             label = '执行失败'
+                        }
+                        if(!params.row.enabled){
+                            label+="(未启用)"
+                            color = 'red'
                         }
                         return h("span", {
                             style: {
@@ -184,7 +188,7 @@ export default {
                     fixed: "right",
                     render: (h, params) => {
                         const menu = []
-                        if (this.role == "ADMIN") {
+                        if (this.role != "GUEST") {
                             menu.push(h(
                                 "Button", {
                                     props: {
@@ -372,19 +376,24 @@ export default {
         };
     },
     mounted: function () {
-        this.getTasks()
          var role= window.sessionStorage.getItem("ROLE")
+         console.log(role)
          if(!!!role){
-            role="ADMIN"
+            role="GUEST"
          }
+         console.log(role)
          this.role=role
+         this.getTasks()
     },
     methods: {
         onAddTask: function () {
             this.taskInfo = {
                 expire: 5,
                 retryTimes: 0,
-                params: "{}"
+                params: "{}",
+                cronStr:"",
+                nextTime:new Date(),
+                description:""
             }
             this.taskModel = true;
         },

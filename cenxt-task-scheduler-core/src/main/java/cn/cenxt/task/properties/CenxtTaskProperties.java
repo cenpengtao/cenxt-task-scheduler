@@ -35,6 +35,11 @@ public class CenxtTaskProperties {
     private boolean initTable = true;
 
     /**
+     * 任务表的前缀
+     */
+    private String tableNamePrefix = "";
+
+    /**
      * 页面配置
      */
     private CenxtTaskProperties.View view = new CenxtTaskProperties.View();
@@ -75,6 +80,14 @@ public class CenxtTaskProperties {
         return initTable;
     }
 
+    public String getTableNamePrefix() {
+        return tableNamePrefix;
+    }
+
+    public void setTableNamePrefix(String tableNamePrefix) {
+        this.tableNamePrefix = tableNamePrefix;
+    }
+
     public void setInitTable(boolean initTable) {
         this.initTable = initTable;
     }
@@ -104,6 +117,14 @@ public class CenxtTaskProperties {
          * 管理员密码
          */
         private String adminPassword = "admin";
+        /**
+         * 游客用户名
+         */
+        private String normalUsername = "normal";
+        /**
+         * 游客密码
+         */
+        private String normalPassword = "normal";
         /**
          * 游客用户名
          */
@@ -141,6 +162,22 @@ public class CenxtTaskProperties {
 
         public void setAdminPassword(String adminPassword) {
             this.adminPassword = adminPassword;
+        }
+
+        public String getNormalUsername() {
+            return normalUsername;
+        }
+
+        public void setNormalUsername(String normalUsername) {
+            this.normalUsername = normalUsername;
+        }
+
+        public String getNormalPassword() {
+            return normalPassword;
+        }
+
+        public void setNormalPassword(String normalPassword) {
+            this.normalPassword = normalPassword;
         }
 
         public String getGuestUsername() {

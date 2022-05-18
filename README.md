@@ -69,6 +69,8 @@ cenxt.task.thread=3
 cenxt.task.fetchSize=3
 #（可选）初始化任务表，如果启用，不存在任务表将自动创建，缺省true
 cenxt.task.initTable=true
+#（可选）任务表的前缀
+cenxt.task.tableNamePrefix=
 
 #（可选）是否启用控制界面，缺省true
 cenxt.task.view.enabled=true
@@ -76,6 +78,10 @@ cenxt.task.view.enabled=true
 cenxt.task.view.adminUsername=admin
 #（可选）管理员密码，缺省admin
 cenxt.task.view.adminPassword=admin
+#（可选）一般用户名，缺省normal
+cenxt.task.view.guestUsername=normal
+#（可选）一般密码，缺省normal
+cenxt.task.view.guestPassword=normal
 #（可选）游客用户名，缺省guest
 cenxt.task.view.guestUsername=guest
 #（可选）游客密码，缺省guest

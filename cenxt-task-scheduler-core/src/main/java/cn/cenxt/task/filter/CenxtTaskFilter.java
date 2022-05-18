@@ -70,6 +70,7 @@ public class CenxtTaskFilter implements Filter {
         }
         //如是外部提供登录验证需重新设置用户名
         request.getSession().setAttribute(Constants.SESSION_USERNAME, userName);
+        request.getSession().setAttribute(Constants.SESSION_ROLE, role);
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }

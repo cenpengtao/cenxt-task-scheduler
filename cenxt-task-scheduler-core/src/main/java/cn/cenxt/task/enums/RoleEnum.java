@@ -9,9 +9,13 @@ public enum RoleEnum {
      */
     GUEST(0, "GUEST"),
     /**
+     * 一般用户
+     */
+    NORMAL(1, "NORMAL"),
+    /**
      * 管理员
      */
-    ADMIN(1, "ADMIN");
+    ADMIN(2, "ADMIN");
 
     RoleEnum(int role, String name) {
         this.role = role;

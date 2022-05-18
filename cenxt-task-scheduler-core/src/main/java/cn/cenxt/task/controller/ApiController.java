@@ -59,6 +59,8 @@ public class ApiController {
         RoleEnum role = null;
         if (login.getUsername().equals(properties.getView().getAdminUsername()) && login.getPassword().equals(properties.getView().getAdminPassword())) {
             role = RoleEnum.ADMIN;
+        } else if (login.getUsername().equals(properties.getView().getNormalUsername()) && login.getPassword().equals(properties.getView().getNormalPassword())) {
+            role = RoleEnum.NORMAL;
         } else if (login.getUsername().equals(properties.getView().getGuestUsername()) && login.getPassword().equals(properties.getView().getGuestPassword())) {
             role = RoleEnum.GUEST;
         }
@@ -91,8 +93,15 @@ public class ApiController {
      * 获取所有任务列表
      */
     @GetMapping("/tasks")
-    public ResponseEntity<List<Task>> tasks() {
-        return ResponseEntity.ok(cenxtTaskService.getAllTasks());
+    public ResponseEntity<List<Task>> tasks(@SessionAttribute(name = Constants.SESSION_USERNAME) String username,
+                                            @SessionAttribute(name = Constants.SESSION_ROLE) RoleEnum role) {
+
+        if (RoleEnum.NORMAL.equals(role)) {
+            return ResponseEntity.ok(cenxtTaskService.getAllTasksByUser(username));
+        } else {
+            return ResponseEntity.ok(cenxtTaskService.getAllTasks());
+        }
+
     }
 
     /**
@@ -101,13 +110,13 @@ public class ApiController {
     @GetMapping("/jobs")
     public ResponseEntity<List<TaskDescription>> jobs() {
         String[] names = applicationContext.getBeanNamesForType(CenxtJob.class);
-        List<TaskDescription> list=new ArrayList<>();
-        for (String name:names){
-            TaskDescription description=new TaskDescription();
+        List<TaskDescription> list = new ArrayList<>();
+        for (String name : names) {
+            TaskDescription description = new TaskDescription();
             description.setName(name);
             Class<?> aClass = applicationContext.getBean(name).getClass();
             TaskInfo taskInfo = aClass.getDeclaredAnnotation(TaskInfo.class);
-            if(taskInfo!=null){
+            if (taskInfo != null) {
                 description.setDescription(taskInfo.description());
                 description.setParamsDescription(taskInfo.paramsDescription());
                 description.setCron(taskInfo.cron());

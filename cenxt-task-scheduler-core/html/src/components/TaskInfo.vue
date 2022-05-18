@@ -107,7 +107,8 @@ export default {
                                 }
                                 callback(errors);
                             })
-                        }
+                        },
+                        trigger: "blur"
                     }
                 ],
                 nextTime: [{

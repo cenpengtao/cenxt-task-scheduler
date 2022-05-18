@@ -88,14 +88,18 @@ public class ExecWrapper implements Runnable {
             }
             cenxtTaskService.saveExecHistory(task, null, execHistory);
             try {
-                Thread.sleep(3000);
+                Thread.sleep(2000);
             } catch (Exception ignored) {
             }
         }
-        try {
-            execHistory = futureTask.get(1, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            logger.error("futureTask get error", e);
+        if(!futureTask.isCancelled()) {
+            try {
+                execHistory = futureTask.get(1, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                logger.error("futureTask get error", e);
+            }
+        } else {
+            logger.warn("futureTask is cancelled");
         }
         cenxtTaskService.saveExecHistory(task, cenxtTaskService.getNowTime(), execHistory);
         if (execHistory.getExecResult() == ExecResultEnum.SUCCESS.getResult()

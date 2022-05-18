@@ -41,25 +41,25 @@ public class CenxtTaskService {
      */
     public void initTable() {
         logger.info("begin init table");
-        logger.info(Constants.SQL_CREATE_TASK_TABLE);
-        if(!checkTableExist(Constants.TABLE_NAME_TASK)){
+        logger.info(Constants.SQL_CREATE_TASK_TABLE());
+        if (!checkTableExist(Constants.TABLE_NAME_TASK)) {
             //创建任务表
-            jdbcTemplate.update(Constants.SQL_CREATE_TASK_TABLE);
+            jdbcTemplate.update(Constants.SQL_CREATE_TASK_TABLE());
         }
 
-        logger.info(Constants.SQL_CREATE_EXEC_HISTORY_TABLE);
-        if(!checkTableExist(Constants.TABLE_NAME_EXEC_HISTORY)){
+        logger.info(Constants.SQL_CREATE_EXEC_HISTORY_TABLE());
+        if (!checkTableExist(Constants.TABLE_NAME_EXEC_HISTORY)) {
             //创建记录表
-            jdbcTemplate.update(Constants.SQL_CREATE_EXEC_HISTORY_TABLE);
+            jdbcTemplate.update(Constants.SQL_CREATE_EXEC_HISTORY_TABLE());
         }
         logger.info("success init table");
     }
 
-    public boolean checkTableExist(String tableName){
-        try{
-            jdbcTemplate.update("SHOW CREATE TABLE "+tableName);
+    public boolean checkTableExist(String tableName) {
+        try {
+            jdbcTemplate.update("SHOW CREATE TABLE " + tableName);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
@@ -73,7 +73,7 @@ public class CenxtTaskService {
     public List<Task> getWaitExecTask(int size) {
         String ip = IpUtil.getLocalIp();
         Object[] params = {ip, ip, size};
-        return jdbcTemplate.query(Constants.SQL_QUERY_WAITE_EXEC_TASK_LIST, params, new TaskRowMapper());
+        return jdbcTemplate.query(Constants.SQL_QUERY_WAITE_EXEC_TASK_LIST(), params, new TaskRowMapper());
     }
 
     /**
@@ -83,7 +83,7 @@ public class CenxtTaskService {
      * @param task 任务
      */
     public boolean lockTask(Task task) {
-        return jdbcTemplate.update(Constants.SQL_QUERY_LOCK_TASK, IpUtil.getLocalIp(), task.getId(), task.getExecTime()) > 0;
+        return jdbcTemplate.update(Constants.SQL_QUERY_LOCK_TASK(), IpUtil.getLocalIp(), task.getId(), task.getExecTime()) > 0;
     }
 
 
@@ -95,7 +95,7 @@ public class CenxtTaskService {
      */
     public void releaseTask(Task task, TaskStatusEnum taskStatusEnum) {
         try {
-            jdbcTemplate.update(Constants.SQL_RELEASE_TASK, taskStatusEnum.getStatus(), CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
+            jdbcTemplate.update(Constants.SQL_RELEASE_TASK(), taskStatusEnum.getStatus(), CronAnalysisUtil.getNextTime(task.getCronStr(), task.getExecTime()), task.getId());
         } catch (Exception e) {
             logger.error("releaseTask error", e);
         }
@@ -110,7 +110,7 @@ public class CenxtTaskService {
      */
     public void failAndDisableTask(int id) {
         try {
-            jdbcTemplate.update(Constants.SQL_FAIL_AND_RELEASE_TASK, id);
+            jdbcTemplate.update(Constants.SQL_FAIL_AND_RELEASE_TASK(), id);
         } catch (Exception e) {
             logger.error("failAndDisableTask error", e);
         }
@@ -128,11 +128,18 @@ public class CenxtTaskService {
     public void saveExecHistory(Task task, Date finishTime, ExecResultEnum execResult, String message) {
         try {
             long cost = finishTime == null ? 0 : (finishTime.getTime() - task.getExecTime().getTime());
-            jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
-                    task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
-                    cost, execResult.getResult(), 0, 0, 0, message);
+            ExecHistory history = this.getExecHistory(task.getExecId());
+            if (history == null) {
+                jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY(),
+                        task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                        cost, execResult.getResult(), 0, 0, 0, message);
+            } else {
+                jdbcTemplate.update(Constants.SQL_UPDATE_EXEC_HISTORY(),
+                        finishTime, cost, execResult.getResult(), 0, 0, 0, message, task.getExecId());
+            }
+
         } catch (Exception e) {
-            logger.error("insertExecHistory error", e);
+            logger.error("saveExecHistory error", e);
         }
 
     }
@@ -142,13 +149,21 @@ public class CenxtTaskService {
             execHistory.setExecMessage(execHistory.getExecMessage().substring(0, 10000));
         }
         try {
-            jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY,
-                    task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
-                    execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
-                    execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
-                    execHistory.getExecMessage());
+            ExecHistory history = this.getExecHistory(task.getExecId());
+            if (history == null) {
+                jdbcTemplate.update(Constants.SQL_INSERT_EXEC_HISTORY(),
+                        task.getId(), task.getExecId(), IpUtil.getLocalIp(), task.getExecTime(), finishTime,
+                        execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
+                        execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
+                        execHistory.getExecMessage());
+            } else {
+                jdbcTemplate.update(Constants.SQL_UPDATE_EXEC_HISTORY(),
+                        finishTime, execHistory.getCost(), execHistory.getExecResult(), execHistory.getRetryTimes(),
+                        execHistory.getExecReport().getSuccessCount(), execHistory.getExecReport().getFailCount(),
+                        execHistory.getExecMessage(), task.getExecId());
+            }
         } catch (Exception e) {
-            logger.error("insertExecHistory error", e);
+            logger.error("saveExecHistory error", e);
         }
     }
 
@@ -173,7 +188,12 @@ public class CenxtTaskService {
     }
 
     public List<Task> getAllTasks() {
-        return jdbcTemplate.query(Constants.SQL_QUERY_ALL_TASK_LIST, new TaskRowMapper());
+        return jdbcTemplate.query(Constants.SQL_QUERY_ALL_TASK_LIST(), new TaskRowMapper());
+    }
+
+    public List<Task> getAllTasksByUser(String username) {
+        Object[] params = {username};
+        return jdbcTemplate.query(Constants.SQL_QUERY_ALL_TASK_LIST_BY_USER(), params, new TaskRowMapper());
     }
 
     /**
@@ -185,7 +205,16 @@ public class CenxtTaskService {
      */
     public List<ExecHistory> getExecHistory(int taskId, int size) {
         Object[] params = {taskId, size};
-        return jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_LIST, params, new ExecHistoryMapper());
+        return jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_LIST(), params, new ExecHistoryMapper());
+    }
+
+    public ExecHistory getExecHistory(String execId) {
+        Object[] params = {execId};
+        List<ExecHistory> execHistories = jdbcTemplate.query(Constants.SQL_QUERY_EXEC_HISTORY_BY_EXEC_ID(), params, new ExecHistoryMapper());
+        if (execHistories == null || execHistories.isEmpty()) {
+            return null;
+        }
+        return execHistories.get(0);
     }
 
     /**
@@ -197,7 +226,7 @@ public class CenxtTaskService {
      */
     public List<ExecHistory> getErrorExecHistory(int taskId, int size) {
         Object[] params = {taskId, size};
-        return jdbcTemplate.query(Constants.SQL_QUERY_ERROR_EXEC_HISTORY_LIST, params, new ExecHistoryMapper());
+        return jdbcTemplate.query(Constants.SQL_QUERY_ERROR_EXEC_HISTORY_LIST(), params, new ExecHistoryMapper());
     }
 
     /**
@@ -208,7 +237,7 @@ public class CenxtTaskService {
      * @return 删除行数
      */
     public int deleteExecHistory(Date date, int size) {
-        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY, date, size);
+        return jdbcTemplate.update(Constants.SQL_DELETE_EXEC_HISTORY(), date, size);
     }
 
     /**
@@ -219,14 +248,14 @@ public class CenxtTaskService {
      */
     public void saveTask(Task task, String username) {
         if (task.getId() > 0) {
-            jdbcTemplate.update(Constants.SQL_UPDATE_TASK,
+            jdbcTemplate.update(Constants.SQL_UPDATE_TASK(),
                     task.getName(), task.getDescription(),
                     task.getCronStr(), task.getExpire(), task.getRetryTimes(),
                     task.getParams(), task.getNextTime(),
                     username,
                     task.getId());
         } else {
-            jdbcTemplate.update(Constants.SQL_INSERT_TASK,
+            jdbcTemplate.update(Constants.SQL_INSERT_TASK(),
                     task.getName(), task.getDescription(),
                     task.getCronStr(), task.getExpire(), task.getRetryTimes(),
                     task.getParams(), task.getNextTime(),
@@ -241,7 +270,7 @@ public class CenxtTaskService {
      * @param enabled 启用状态
      */
     public void enableTask(int id, boolean enabled, String username) {
-        jdbcTemplate.update(Constants.SQL_UPDATE_TASK_ENABLE, enabled ? 1 : 0, username, id);
+        jdbcTemplate.update(Constants.SQL_UPDATE_TASK_ENABLE(), enabled ? 1 : 0, username, id);
     }
 
     /**
@@ -250,7 +279,7 @@ public class CenxtTaskService {
      * @param id 任务编号
      */
     public void deleteTask(int id) {
-        jdbcTemplate.update(Constants.SQL_DELETE_TASK, id);
+        jdbcTemplate.update(Constants.SQL_DELETE_TASK(), id);
     }
 
 
