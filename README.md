@@ -79,9 +79,9 @@ cenxt.task.view.adminUsername=admin
 #（可选）管理员密码，缺省admin
 cenxt.task.view.adminPassword=admin
 #（可选）一般用户名，缺省normal
-cenxt.task.view.guestUsername=normal
+cenxt.task.view.normalUsername=normal
 #（可选）一般密码，缺省normal
-cenxt.task.view.guestPassword=normal
+cenxt.task.view.normalPassword=normal
 #（可选）游客用户名，缺省guest
 cenxt.task.view.guestUsername=guest
 #（可选）游客密码，缺省guest
