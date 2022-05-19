@@ -1,5 +1,5 @@
 <template>
-<Modal v-model="taskModel" :width="900" :mask-closable="false" :closable="false">
+<Modal v-model="taskModel" :width="800" :mask-closable="false" :closable="false">
     <p slot="header">
         <span v-if="taskInfo.id">修改任务</span>
         <span v-else>新建任务</span>
@@ -52,14 +52,18 @@
             </Col>
         </Row>
         <Row>
-            <FormItem label="描述" prop="description">
-                <Input v-model="taskInfo.description" placeholder="描述" type="textarea" :rows="2" clearable show-word-limit maxlength="200" />
-            </FormItem>
+            <Col span="24">
+                <FormItem label="描述" prop="description">
+                    <Input v-model="taskInfo.description" placeholder="描述" type="textarea" :rows="2" clearable show-word-limit maxlength="200" />
+                </FormItem>
+            </Col>
         </Row>
         <Row>
-            <FormItem label="参数(JSON)" prop="params">
-                <Input v-model="taskInfo.params" placeholder="参数(JSON)" type="textarea" :rows="10" clearable show-word-limit maxlength="4000" />
-            </FormItem>
+            <Col span="24">
+                <FormItem label="参数(JSON)" prop="params">
+                    <Input v-model="taskInfo.params" placeholder="参数(JSON)" type="textarea" :rows="8" clearable show-word-limit maxlength="4000" />
+                </FormItem>
+            </Col>
         </Row>
     </Form>
     <div slot="footer">
