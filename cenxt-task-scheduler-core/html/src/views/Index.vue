@@ -376,14 +376,16 @@ export default {
         };
     },
     mounted: function () {
-         var role= window.sessionStorage.getItem("ROLE")
-         console.log(role)
-         if(!!!role){
-            role="GUEST"
-         }
-         console.log(role)
-         this.role=role
-         this.getTasks()
+        http.get("/api/role", role => {
+                if(!!!role){
+                    role="GUEST"
+                }
+                console.log(role)
+                this.role=role
+                this.getTasks()
+            }, e => {
+                
+            });
     },
     methods: {
         onAddTask: function () {

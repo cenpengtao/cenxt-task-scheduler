@@ -80,6 +80,14 @@ public class ApiController {
     }
 
     /**
+     * 获取角色
+     */
+    @GetMapping("/role")
+    public ResponseEntity<String> role(HttpSession session) {
+        return ResponseEntity.ok(session.getAttribute(Constants.SESSION_ROLE).toString());
+    }
+
+    /**
      * 登出
      */
     @GetMapping("/logout")
