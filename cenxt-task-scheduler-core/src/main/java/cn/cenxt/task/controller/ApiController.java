@@ -116,7 +116,7 @@ public class ApiController {
      * 获取所有任务列表
      */
     @GetMapping("/jobs")
-    public ResponseEntity<List<TaskDescription>> jobs() {
+    public ResponseEntity<List<TaskDescription>> jobs(@SessionAttribute(name = Constants.SESSION_ROLE) RoleEnum role) {
         String[] names = applicationContext.getBeanNamesForType(CenxtJob.class);
         List<TaskDescription> list = new ArrayList<>();
         for (String name : names) {
@@ -130,6 +130,10 @@ public class ApiController {
                 description.setCron(taskInfo.cron());
                 description.setExpire(taskInfo.expire());
                 description.setRetryTimes(taskInfo.retryTimes());
+                if (role.getRole() >= taskInfo.role().getRole()) {
+                    list.add(description);
+                }
+                continue;
             }
             list.add(description);
         }

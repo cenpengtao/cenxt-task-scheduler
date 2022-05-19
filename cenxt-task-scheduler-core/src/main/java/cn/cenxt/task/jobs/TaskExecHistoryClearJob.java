@@ -1,6 +1,7 @@
 package cn.cenxt.task.jobs;
 
 import cn.cenxt.task.annotations.TaskInfo;
+import cn.cenxt.task.enums.RoleEnum;
 import cn.cenxt.task.model.ExecReport;
 import cn.cenxt.task.model.Task;
 import cn.cenxt.task.service.CenxtTaskService;
@@ -20,7 +21,7 @@ import java.util.Date;
         "  \"beforeDay\": 5,\n" +
         "  \"?size\": \"删除的行数，默认100\",\n" +
         "  \"size\": \"100\"\n" +
-        "}")
+        "}",role = RoleEnum.ADMIN)
 public class TaskExecHistoryClearJob implements CenxtJob {
 
     private static Logger logger = LoggerFactory.getLogger(TaskExecHistoryClearJob.class);
