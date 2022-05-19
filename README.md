@@ -11,7 +11,7 @@
 <dependency>
     <groupId>cn.cenxt</groupId>
     <artifactId>cenxt-task-scheduler-core</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 #### 2、启动类添加@EnableCenxtTask，启用任务调度服务
